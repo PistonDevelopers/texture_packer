@@ -1,0 +1,14 @@
+[package]
+
+name = "texture-packer"
+version = "0.0.0"
+authors = ["Coeuvre <coeuvre@gmail.com>"]
+
+[[bin]]
+
+name = "texture-packer"
+path = "src/main.rs"
+
+[dependencies.image]
+
+git = "https://github.com/PistonDevelopers/rust-image"
