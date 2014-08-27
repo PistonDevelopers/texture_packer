@@ -5,6 +5,7 @@ use image::{
 };
 
 pub trait Packer {
+    fn image(&self) -> &DynamicImage;
     fn pack(&mut self, image: &DynamicImage);
 }
 

@@ -33,9 +33,6 @@ impl ShelfPacker {
         }
     }
 
-    pub fn image(&self) -> &DynamicImage {
-        &self.buf
-    }
 }
 
 impl Packer for ShelfPacker {
@@ -81,6 +78,10 @@ impl Packer for ShelfPacker {
                 self.opening_shelf_max_y = patched_height;
             }
         }
+    }
+
+    fn image(&self) -> &DynamicImage {
+        &self.buf
     }
 }
 
