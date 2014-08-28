@@ -5,25 +5,14 @@ use packer::{
     patch_rotated,
 };
 
+use rect::Rect;
+
 use image::{
     ImageRgba8,
     DynamicImage,
     GenericImage,
     ImageBuf,
 };
-
-struct Rect {
-    x: u32,
-    y: u32,
-    w: u32,
-    h: u32,
-}
-
-impl Rect {
-    pub fn area(&self) -> u32 {
-        self.w * self.h
-    }
-}
 
 pub struct GuillotinePacker {
     buf: DynamicImage,

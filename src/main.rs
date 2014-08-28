@@ -1,12 +1,13 @@
 
 extern crate image;
+extern crate texture_packer;
 
 use std::io::File;
-use packer::Packer;
-
-mod packer;
-mod shelf_packer;
-mod guillotine_packer;
+use texture_packer::{
+    Packer,
+    ShelfPacker,
+    GuillotinePacker,
+};
 
 static OUTPUT_IMAGE_WIDTH: u32 = 400;
 static OUTPUT_IMAGE_HEIGHT: u32 = 400;
@@ -25,7 +26,7 @@ fn pack(packer: &mut Packer, output_filename: &str) {
 }
 
 fn main() {
-    pack(&mut shelf_packer::ShelfPacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "shelf-packer-output.png");
-    pack(&mut guillotine_packer::GuillotinePacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "guillotine-packer-output.png");
+    pack(&mut ShelfPacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "shelf-packer-output.png");
+    pack(&mut GuillotinePacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "guillotine-packer-output.png");
 }
 

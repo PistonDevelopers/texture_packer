@@ -7,7 +7,10 @@ authors = ["Coeuvre <coeuvre@gmail.com>"]
 [[bin]]
 
 name = "texture-packer"
-path = "src/main.rs"
+
+[lib]
+
+name = "texture_packer"
 
 [dependencies.image]
 
