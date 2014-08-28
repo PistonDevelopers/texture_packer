@@ -9,3 +9,6 @@ A texture packer with rust-image
 
 ## Guillotine Packer
 ![guillotine-packer](./bin/guillotine-packer-output.png)
+
+## Maxrect Packer
+![maxrect-packer](./bin/maxrect-packer-output.png)
