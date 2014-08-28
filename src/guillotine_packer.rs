@@ -2,6 +2,7 @@
 use packer::{
     Packer,
     patch,
+    patch_rotated,
 };
 
 use image::{
@@ -53,8 +54,9 @@ impl GuillotinePacker {
 
         for i in range(0, self.free_areas.len()) {
             let ref rect = self.free_areas[i];
-            if image_width <= rect.w && image_height <= rect.h {
-                let area = rect.area();
+            let area = rect.area();
+            if image_width <= rect.w && image_height <= rect.h ||
+               image_height <= rect.w && image_width <= rect.h {
                 if min_area.is_none() || area < min_area.unwrap() {
                     index = Some(i);
                     min_area = Some(area);
@@ -66,9 +68,15 @@ impl GuillotinePacker {
     }
 
     // Shorter Axis Split
-    fn split(&mut self, index: uint, image: &DynamicImage) {
-        let (image_width, image_height) = image.dimensions();
+    fn split(&mut self, index: uint, rotated: bool, image: &DynamicImage) {
+        let (mut image_width, mut image_height) = image.dimensions();
         let rect = self.free_areas.remove(index).unwrap();
+
+        if rotated {
+            let tmp = image_width;
+            image_width = image_height;
+            image_height = tmp;
+        }
 
         // Split horizontally
         if rect.w < rect.h {
@@ -109,11 +117,19 @@ impl Packer for GuillotinePacker {
     fn pack(&mut self, image: &DynamicImage) {
         let index = self.find_free_area(image);
         if index.is_some() {
-            {
-                let ref rect = self.free_areas[index.unwrap()];
+            let i = index.unwrap();
+            let rect = self.free_areas[i];
+            let (image_width, image_height) = image.dimensions();
+            let mut rotated = false;
+
+            if image_width <= rect.w && image_height <= rect.h {
                 patch(&mut self.buf, rect.x, rect.y, image);
+            } else {
+                patch_rotated(&mut self.buf, rect.x, rect.y, image);
+                rotated = true;
             }
-            self.split(index.unwrap(), image);
+
+            self.split(i, rotated, image);
         }
     }
 
