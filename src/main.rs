@@ -14,7 +14,7 @@ static OUTPUT_IMAGE_WIDTH: u32 = 400;
 static OUTPUT_IMAGE_HEIGHT: u32 = 400;
 
 fn pack(packer: &mut Packer, output_filename: &str) {
-    for i in range(1u32, 10) {
+    for i in range(1u32, 11) {
         let mut filename = String::from_str("./bin/");
         filename.push_str(format!("{}.png", i).as_slice());
         let image = image::open(&Path::new(filename)).unwrap();
