@@ -7,6 +7,7 @@ use texture_packer::{
     Packer,
     ShelfPacker,
     GuillotinePacker,
+    MaxrectPacker,
 };
 
 static OUTPUT_IMAGE_WIDTH: u32 = 400;
@@ -28,5 +29,6 @@ fn pack(packer: &mut Packer, output_filename: &str) {
 fn main() {
     pack(&mut ShelfPacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "shelf-packer-output.png");
     pack(&mut GuillotinePacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "guillotine-packer-output.png");
+    pack(&mut MaxrectPacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "maxrect-packer-output.png");
 }
 
