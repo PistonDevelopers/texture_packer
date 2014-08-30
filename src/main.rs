@@ -8,6 +8,7 @@ use texture_packer::{
     ShelfPacker,
     GuillotinePacker,
     MaxrectPacker,
+    SkylinePacker,
 };
 
 static OUTPUT_IMAGE_WIDTH: u32 = 400;
@@ -30,5 +31,6 @@ fn main() {
     pack(&mut ShelfPacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "shelf-packer-output.png");
     pack(&mut GuillotinePacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "guillotine-packer-output.png");
     pack(&mut MaxrectPacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "maxrect-packer-output.png");
+    pack(&mut SkylinePacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "skyline-packer-output.png");
 }
 

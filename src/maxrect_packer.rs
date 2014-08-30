@@ -72,7 +72,7 @@ impl MaxrectPacker {
         self.free_areas = new_free_areas;
     }
 
-    fn cleanup(&mut self) {
+    fn merge(&mut self) {
         if self.free_areas.len() > 1 {
             let mut new_free_areas = Vec::new();
             let mut to_be_removed = Vec::new();
@@ -116,7 +116,7 @@ impl Packer for MaxrectPacker {
 
             self.split(i, rect.w, rect.h);
             self.divide(&rect);
-            self.cleanup();
+            self.merge();
         }
     }
 
