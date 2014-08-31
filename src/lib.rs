@@ -6,6 +6,7 @@ pub use shelf_packer::ShelfPacker;
 pub use guillotine_packer::GuillotinePacker;
 pub use maxrect_packer::MaxrectPacker;
 pub use skyline_packer::SkylinePacker;
+pub use rect::Rect;
 
 pub mod packer;
 pub mod shelf_packer;

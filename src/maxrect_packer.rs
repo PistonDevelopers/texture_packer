@@ -35,33 +35,65 @@ impl MaxrectPacker {
         }
     }
 
-    fn find_free_area(&self, image: &DynamicImage) -> Option<uint> {
-        let (image_width, image_height) = image.dimensions();
+    fn find_free_area(&self, w: u32, h: u32) -> Option<(uint, Rect)> {
         let mut min_x = None;
         let mut min_y = None;
         let mut index = None;
+        let mut rect = Rect::new(0, 0, 0, 0);
 
         for i in range(0, self.free_areas.len()) {
-            let ref free_area = self.free_areas[i];
+            let ref area = self.free_areas[i];
 
-            if free_area.w >= image_width && free_area.h >= image_height ||
-               free_area.h >= image_width && free_area.w >= image_height {
-                if min_y.is_none() || free_area.top() < min_y.unwrap() ||
-                   (free_area.top() == min_y.unwrap() && free_area.left() < min_x.unwrap()) {
+            if w <= area.w && h <= area.h {
+                if min_y.is_none() || area.y < min_y.unwrap() ||
+                   (area.y == min_y.unwrap() && area.x < min_x.unwrap()) {
                     index = Some(i);
-                    min_x = Some(free_area.left());
-                    min_y = Some(free_area.top());
+                    min_x = Some(area.x);
+                    min_y = Some(area.y);
+                    rect.x = area.x;
+                    rect.y = area.y;
+                    rect.w = w;
+                    rect.h = h;
+                }
+            } else if h <= area.w && w <= area.h {
+                if min_y.is_none() || area.y < min_y.unwrap() ||
+                   (area.y == min_y.unwrap() && area.x < min_x.unwrap()) {
+                    index = Some(i);
+                    min_x = Some(area.x);
+                    min_y = Some(area.y);
+                    rect.x = area.x;
+                    rect.y = area.y;
+                    rect.w = h;
+                    rect.h = w;
                 }
             }
         }
 
-        index
+        match index {
+            Some(i) => {
+                Some((i, rect))
+            },
+            _ => {
+                None
+            },
+        }
     }
 
-    fn split(&mut self, index: uint, w: u32, h: u32) {
-        let rect = self.free_areas.remove(index).unwrap();
-        self.free_areas.push(Rect::new_with_points(rect.left() + w, rect.top(), rect.right(), rect.bottom()));
-        self.free_areas.push(Rect::new_with_points(rect.left(), rect.top() + h, rect.right(), rect.bottom()));
+    fn split(&mut self, index: uint, rect: &Rect) {
+        let area = self.free_areas.remove(index).unwrap();
+        self.free_areas.push(Rect {
+            x: area.x + rect.w,
+            y: area.y,
+            w: area.w - rect.w,
+            h: area.h,
+        });
+
+        self.free_areas.push(Rect {
+            x: area.x,
+            y: area.y + rect.h,
+            w: area.w,
+            h: area.h - rect.h,
+        });
     }
 
     fn divide(&mut self, rect: &Rect) {
@@ -98,25 +130,25 @@ impl MaxrectPacker {
 }
 
 impl Packer for MaxrectPacker {
-    fn pack(&mut self, image: &DynamicImage) {
-        let index = self.find_free_area(image);
-        if index.is_some() {
-            let i = index.unwrap();
-            let free_area = self.free_areas[i];
-            let (image_width, image_height) = image.dimensions();
-            let mut rect = Rect::new(free_area.x, free_area.y, image_width, image_height);
+    fn pack(&mut self, image: &DynamicImage) -> Option<Rect> {
+        let (image_width, image_height) = image.dimensions();
+        match self.find_free_area(image_width, image_height) {
+            Some((i, rect)) => {
+                if image_width == rect.w {
+                    patch(&mut self.buf, rect.x, rect.y, image);
+                } else {
+                    patch_rotated(&mut self.buf, rect.x, rect.y, image);
+                }
 
-            if image_width <= free_area.w && image_height <= free_area.h {
-                patch(&mut self.buf, free_area.x, free_area.y, image);
-            } else {
-                patch_rotated(&mut self.buf, free_area.x, free_area.y, image);
-                rect.w = image_height;
-                rect.h = image_width;
-            }
+                self.split(i, &rect);
+                self.divide(&rect);
+                self.merge();
 
-            self.split(i, rect.w, rect.h);
-            self.divide(&rect);
-            self.merge();
+                Some(rect)
+            },
+            _ => {
+                None
+            },
         }
     }
 

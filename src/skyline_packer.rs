@@ -161,7 +161,7 @@ impl SkylinePacker {
 }
 
 impl Packer for SkylinePacker {
-    fn pack(&mut self, image: &DynamicImage) {
+    fn pack(&mut self, image: &DynamicImage) -> Option<Rect> {
         let (image_width, image_height) = image.dimensions();
         match self.find_skyline(image_width, image_height) {
             Some((i, rect)) => {
@@ -173,8 +173,12 @@ impl Packer for SkylinePacker {
 
                 self.split(i, &rect);
                 self.merge();
+
+                Some(rect)
             },
-            _ => {},
+            _ => {
+                None
+            },
         }
     }
 

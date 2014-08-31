@@ -4,9 +4,11 @@ use image::{
     GenericImage,
 };
 
+use rect::Rect;
+
 pub trait Packer {
     fn image(&self) -> &DynamicImage;
-    fn pack(&mut self, image: &DynamicImage);
+    fn pack(&mut self, image: &DynamicImage) -> Option<Rect>;
 }
 
 pub fn patch(buf: &mut DynamicImage, x: u32, y: u32, image: &DynamicImage) {

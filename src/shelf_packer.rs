@@ -12,6 +12,8 @@ use image::{
     ImageBuf,
 };
 
+use rect::Rect;
+
 pub struct ShelfPacker {
     buf: DynamicImage,
     width: u32,
@@ -36,7 +38,7 @@ impl ShelfPacker {
 }
 
 impl Packer for ShelfPacker {
-    fn pack(&mut self, image: &DynamicImage) {
+    fn pack(&mut self, image: &DynamicImage) -> Option<Rect> {
         let (image_width, image_height) = image.dimensions();
 
         let mut patch_fn = patch;
@@ -77,6 +79,10 @@ impl Packer for ShelfPacker {
             if self.opening_shelf_max_y < patched_height {
                 self.opening_shelf_max_y = patched_height;
             }
+
+            Some(Rect::new(self.x, self.y, patched_width, patched_height))
+        } else {
+            None
         }
     }
 
