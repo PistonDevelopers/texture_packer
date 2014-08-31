@@ -1,4 +1,6 @@
 
+use std;
+use std::cmp::max;
 use packer::{
     Packer,
     patch,
@@ -12,6 +14,8 @@ use image::{
     ImageBuf,
 };
 
+use rect::Rect;
+
 struct Skyline {
     pub x: u32,
     pub y: u32,
@@ -20,6 +24,8 @@ struct Skyline {
 
 pub struct SkylinePacker {
     buf: DynamicImage,
+    width: u32,
+    height: u32,
     skylines: Vec<Skyline>,
 }
 
@@ -34,99 +40,141 @@ impl SkylinePacker {
 
         SkylinePacker {
             buf: ImageRgba8(ImageBuf::new(width, height)),
+            width: width,
+            height: height,
             skylines: skylines,
         }
     }
 
-    fn find_skyline(&self, w: u32, h: u32) -> Option<uint> {
-        let (_, buf_height) = self.buf.dimensions();
+    fn can_put(&self, i: uint, w: u32, h: u32) -> Option<u32> {
+        let x = self.skylines[i].x;
+        if x + w > self.width {
+            return None;
+        }
+        let mut width_left = w;
+        let mut i = i;
+        let mut y = self.skylines[i].y;
+        loop {
+            y = max(y, self.skylines[i].y);
+            if y + h > self.height {
+                return None;
+            }
+            if self.skylines[i].w > width_left {
+                return Some(y);
+            }
+            width_left -= self.skylines[i].w;
+            i += 1;
+            assert!(i < self.skylines.len());
+        }
+    }
 
-        for index in range(0, self.skylines.len()) {
-            let ref skyline = self.skylines[index];
-            if w <= skyline.w && skyline.y + h <= buf_height ||
-               h <= skyline.w && skyline.y + w <= buf_height {
-                return Some(index);
+    fn find_skyline(&self, w: u32, h: u32) -> Option<(uint, Rect)> {
+        let mut min_height = std::u32::MAX;
+        let mut min_width = std::u32::MAX;
+        let mut index = None;
+        let mut rect = Rect::new(0, 0, 0, 0);
+
+        // keep the min_height as small as possible
+        for i in range(0, self.skylines.len()) {
+            match self.can_put(i, w, h) {
+                Some(y) => {
+                    if y + h < min_height ||
+                       (y + h == min_height && self.skylines[i].w < min_width) {
+                        min_height = y + h;
+                        min_width = self.skylines[i].w;
+                        index = Some(i);
+                        rect.x = self.skylines[i].x;
+                        rect.y = y;
+                        rect.w = w;
+                        rect.h = h;
+                    }
+                },
+                _ => {},
+            }
+
+            match self.can_put(i, h, w) {
+                Some(y) => {
+                    if y + w < min_height ||
+                       (y + w == min_height && self.skylines[i].w < min_width) {
+                        min_height = y + w;
+                        min_width = self.skylines[i].w;
+                        index = Some(i);
+                        rect.x = self.skylines[i].x;
+                        rect.y = y;
+                        rect.w = h;
+                        rect.h = w;
+                    }
+                },
+                _ => {},
             }
         }
 
-        None
+        if index.is_some() {
+            Some((index.unwrap(), rect))
+        } else {
+            None
+        }
     }
 
-    fn split(&mut self, index: uint, w: u32, h: u32) {
-        let skyline = self.skylines.remove(index).unwrap();
-        self.skylines.push(Skyline {
-            x: skyline.x + w,
-            y: skyline.y,
-            w: skyline.w - w,
-        });
-        self.skylines.push(Skyline {
-            x: skyline.x,
-            y: skyline.y + h,
-            w: w,
-        });
+    fn split(&mut self, index: uint, rect: &Rect) {
+        let skyline = Skyline {
+            x: rect.x,
+            y: rect.y + rect.h,
+            w: rect.w,
+        };
+
+        assert!(skyline.x + skyline.w <= self.width);
+        assert!(skyline.y <= self.height);
+
+        self.skylines.insert(index, skyline);
+
+        let i = index + 1;
+        while i < self.skylines.len() {
+            assert!(self.skylines[i-1].x <= self.skylines[i].x);
+
+            if self.skylines[i].x < self.skylines[i-1].x + self.skylines[i-1].w {
+                let shrink = self.skylines[i-1].x + self.skylines[i-1].w - self.skylines[i].x;
+                if self.skylines[i].w <= shrink {
+                    self.skylines.remove(i);
+                } else {
+                    self.skylines.get_mut(i).x += shrink;
+                    self.skylines.get_mut(i).w -= shrink;
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
     }
 
     fn merge(&mut self) {
-        self.skylines.sort_by(|a, b| {
-            if a.y < b.y {
-                Less
-            } else if a.y == b.y {
-                if a.x < b.x {
-                    Less
-                } else if a.x == b.x {
-                    Equal
-                } else {
-                    Greater
-                }
-            } else {
-                Greater
+        let mut i = 1;
+        while i < self.skylines.len() {
+            if self.skylines[i-1].y == self.skylines[i].y {
+                self.skylines.get_mut(i-1).w += self.skylines[i].w;
+                self.skylines.remove(i);
+                i -= 1;
             }
-        });
-
-        let mut new_skylines = Vec::new();
-        let mut removed = Vec::new();
-
-        for i in range(0, self.skylines.len()) {
-            if removed.contains(&i) {
-                continue
-            }
-
-            let mut new_skyline = self.skylines[i];
-
-            for j in range (i + 1, self.skylines.len()) {
-                if new_skyline.y == self.skylines[j].y &&
-                   new_skyline.x + new_skyline.w == self.skylines[j].x {
-                    new_skyline.w += self.skylines[j].w;
-                    removed.push(j);
-                }
-            }
-            new_skylines.push(new_skyline);
+            i += 1;
         }
-        self.skylines = new_skylines;
     }
 }
 
 impl Packer for SkylinePacker {
     fn pack(&mut self, image: &DynamicImage) {
         let (image_width, image_height) = image.dimensions();
-        let index = self.find_skyline(image_width, image_height);
-        if index.is_some() {
-            let i = index.unwrap();
-            let skyline = self.skylines[i];
-            let (_, buf_height) = self.buf.dimensions();
-            let mut patched_width = image_width;
-            let mut patched_height = image_height;
+        match self.find_skyline(image_width, image_height) {
+            Some((i, rect)) => {
+                if image_width == rect.w {
+                    patch(&mut self.buf, rect.x, rect.y, image);
+                } else {
+                    patch_rotated(&mut self.buf, rect.x, rect.y, image);
+                }
 
-            if image_width <= skyline.w && skyline.y + image_height <= buf_height {
-                patch(&mut self.buf, skyline.x, skyline.y, image);
-            } else {
-                patch_rotated(&mut self.buf, skyline.x, skyline.y, image);
-                patched_width = image_height;
-                patched_height = image_width;
-            }
-
-            self.split(i, patched_width, patched_height);
-            self.merge();
+                self.split(i, &rect);
+                self.merge();
+            },
+            _ => {},
         }
     }
 

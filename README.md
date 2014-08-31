@@ -12,3 +12,6 @@ A texture packer with rust-image
 
 ## Maxrect Packer
 ![maxrect-packer](./bin/maxrect-packer-output.png)
+
+## Skyline Packer
+![skyline-packer](./bin/skyline-packer-output.png)
