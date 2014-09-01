@@ -19,6 +19,7 @@ pub struct SkylinePacker<'a> {
     width: u32,
     height: u32,
     skylines: Vec<Skyline>,
+    margin: u32,
 }
 
 impl<'a> SkylinePacker<'a> {
@@ -36,6 +37,7 @@ impl<'a> SkylinePacker<'a> {
             width: width,
             height: height,
             skylines: skylines,
+            margin: 0,
         }
     }
 
@@ -155,10 +157,13 @@ impl<'a> SkylinePacker<'a> {
 
 impl<'a> Packer for SkylinePacker<'a> {
     fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
-        let (image_width, image_height) = buf.dimensions();
-        match self.find_skyline(image_width, image_height) {
+        let (mut width, mut height) = buf.dimensions();
+        width += self.margin;
+        height += self.margin;
+
+        match self.find_skyline(width, height) {
             Some((i, rect)) => {
-                if image_width == rect.w {
+                if width == rect.w {
                     self.buf.patch(rect.x, rect.y, buf);
                 } else {
                     self.buf.patch_rotated(rect.x, rect.y, buf);
@@ -178,4 +183,9 @@ impl<'a> Packer for SkylinePacker<'a> {
     fn buf(&self) -> &Buffer2d {
         self.buf
     }
+
+    fn set_margin(&mut self, val: u32) {
+        self.margin = val;
+    }
 }
+

@@ -12,6 +12,7 @@ pub struct ShelfPacker<'a> {
     x: u32,
     y: u32,
     opening_shelf_max_y: u32,
+    margin: u32,
 }
 
 impl<'a> ShelfPacker<'a> {
@@ -24,6 +25,7 @@ impl<'a> ShelfPacker<'a> {
             x: 0,
             y: 0,
             opening_shelf_max_y: 0,
+            margin: 0,
         }
     }
 
@@ -31,8 +33,9 @@ impl<'a> ShelfPacker<'a> {
 
 impl<'a> Packer for ShelfPacker<'a> {
     fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
-        let (buf_width, buf_height) = buf.dimensions();
-
+        let (mut buf_width, mut buf_height) = buf.dimensions();
+        buf_width += self.margin;
+        buf_height += self.margin;
         let mut patched_width = buf_width;
         let mut patched_height = buf_height;
 
@@ -82,6 +85,10 @@ impl<'a> Packer for ShelfPacker<'a> {
 
     fn buf(&self) -> &Buffer2d {
         &*self.buf
+    }
+
+    fn set_margin(&mut self, val: u32) {
+        self.margin = val;
     }
 }
 

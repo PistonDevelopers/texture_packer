@@ -8,6 +8,7 @@ use {
 pub struct GuillotinePacker<'a> {
     buf: &'a mut Buffer2d,
     free_areas: Vec<Rect>,
+    margin: u32,
 }
 
 impl<'a> GuillotinePacker<'a> {
@@ -24,6 +25,7 @@ impl<'a> GuillotinePacker<'a> {
         GuillotinePacker {
             buf: buf,
             free_areas: free_areas,
+            margin: 0,
         }
     }
 
@@ -109,11 +111,12 @@ impl<'a> GuillotinePacker<'a> {
 
 impl<'a> Packer for GuillotinePacker<'a> {
     fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
-        let (image_width, image_height) = buf.dimensions();
-
-        match self.find_free_area(image_width, image_height) {
+        let (mut width, mut height) = buf.dimensions();
+        width += self.margin;
+        height += self.margin;
+        match self.find_free_area(width, height) {
             Some((i, rect)) => {
-                if image_width == rect.w {
+                if width == rect.w {
                     self.buf.patch(rect.x, rect.y, buf);
                 } else {
                     self.buf.patch_rotated(rect.x, rect.y, buf);
@@ -131,6 +134,10 @@ impl<'a> Packer for GuillotinePacker<'a> {
 
     fn buf(&self) -> &Buffer2d {
         self.buf
+    }
+
+    fn set_margin(&mut self, val: u32) {
+        self.margin = val;
     }
 }
 

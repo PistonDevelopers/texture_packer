@@ -1,10 +1,8 @@
 
-extern crate image;
 extern crate texture_packer;
 
 use texture_packer::{
     RGBA,
-    Buffer2d,
     ImageBuffer,
     Packer,
     ShelfPacker,
@@ -22,6 +20,7 @@ fn pack(packer: &mut Packer, output_filename: &str) {
         filename.push_str(format!("{}.png", i).as_slice());
         let image = ImageBuffer::open(&Path::new(filename)).unwrap();
 
+        packer.set_margin(1);
         packer.pack(&image);
     }
 
