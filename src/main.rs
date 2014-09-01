@@ -2,8 +2,10 @@
 extern crate image;
 extern crate texture_packer;
 
-use std::io::File;
 use texture_packer::{
+    RGBA,
+    Buffer2d,
+    ImageBuffer,
     Packer,
     ShelfPacker,
     GuillotinePacker,
@@ -18,19 +20,18 @@ fn pack(packer: &mut Packer, output_filename: &str) {
     for i in range(1u32, 11) {
         let mut filename = String::from_str("./bin/");
         filename.push_str(format!("{}.png", i).as_slice());
-        let image = image::open(&Path::new(filename)).unwrap();
+        let image = ImageBuffer::open(&Path::new(filename)).unwrap();
 
         packer.pack(&image);
     }
 
-    let fout = File::create(&Path::new(output_filename)).unwrap();
-    let _ = packer.image().save(fout, image::PNG);
+    let _ = packer.buf().save(&Path::new(output_filename));
 }
 
 fn main() {
-    pack(&mut ShelfPacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "shelf-packer-output.png");
-    pack(&mut GuillotinePacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "guillotine-packer-output.png");
-    pack(&mut MaxrectPacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "maxrect-packer-output.png");
-    pack(&mut SkylinePacker::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT), "skyline-packer-output.png");
+    pack(&mut ShelfPacker::new(&mut ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, RGBA)), "shelf-packer-output.png");
+    pack(&mut GuillotinePacker::new(&mut ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, RGBA)), "guillotine-packer-output.png");
+    pack(&mut MaxrectPacker::new(&mut ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, RGBA)), "maxrect-packer-output.png");
+    pack(&mut SkylinePacker::new(&mut ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, RGBA)), "skyline-packer-output.png");
 }
 

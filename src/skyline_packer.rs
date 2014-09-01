@@ -1,20 +1,12 @@
 
 use std;
 use std::cmp::max;
-use packer::{
+
+use {
+    Buffer2d,
     Packer,
-    patch,
-    patch_rotated,
+    Rect,
 };
-
-use image::{
-    ImageRgba8,
-    DynamicImage,
-    GenericImage,
-    ImageBuf,
-};
-
-use rect::Rect;
 
 struct Skyline {
     pub x: u32,
@@ -22,15 +14,16 @@ struct Skyline {
     pub w: u32,
 }
 
-pub struct SkylinePacker {
-    buf: DynamicImage,
+pub struct SkylinePacker<'a> {
+    buf: &'a mut Buffer2d,
     width: u32,
     height: u32,
     skylines: Vec<Skyline>,
 }
 
-impl SkylinePacker {
-    pub fn new(width: u32, height: u32) -> SkylinePacker {
+impl<'a> SkylinePacker<'a> {
+    pub fn new(buf: &'a mut Buffer2d) -> SkylinePacker<'a> {
+        let (width, height) = buf.dimensions();
         let mut skylines = Vec::new();
         skylines.push(Skyline {
             x: 0,
@@ -39,7 +32,7 @@ impl SkylinePacker {
         });
 
         SkylinePacker {
-            buf: ImageRgba8(ImageBuf::new(width, height)),
+            buf: buf,
             width: width,
             height: height,
             skylines: skylines,
@@ -160,15 +153,15 @@ impl SkylinePacker {
     }
 }
 
-impl Packer for SkylinePacker {
-    fn pack(&mut self, image: &DynamicImage) -> Option<Rect> {
-        let (image_width, image_height) = image.dimensions();
+impl<'a> Packer for SkylinePacker<'a> {
+    fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
+        let (image_width, image_height) = buf.dimensions();
         match self.find_skyline(image_width, image_height) {
             Some((i, rect)) => {
                 if image_width == rect.w {
-                    patch(&mut self.buf, rect.x, rect.y, image);
+                    self.buf.patch(rect.x, rect.y, buf);
                 } else {
-                    patch_rotated(&mut self.buf, rect.x, rect.y, image);
+                    self.buf.patch_rotated(rect.x, rect.y, buf);
                 }
 
                 self.split(i, &rect);
@@ -182,7 +175,7 @@ impl Packer for SkylinePacker {
         }
     }
 
-    fn image(&self) -> &DynamicImage {
-        &self.buf
+    fn buf(&self) -> &Buffer2d {
+        self.buf
     }
 }

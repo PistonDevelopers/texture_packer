@@ -1,26 +1,19 @@
 
-use packer::{
+use {
+    Buffer2d,
     Packer,
-    patch,
-    patch_rotated,
+    Rect,
 };
 
-use rect::Rect;
-
-use image::{
-    ImageRgba8,
-    DynamicImage,
-    GenericImage,
-    ImageBuf,
-};
-
-pub struct MaxrectPacker {
-    buf: DynamicImage,
+pub struct MaxrectPacker<'a> {
+    buf: &'a mut Buffer2d,
     free_areas: Vec<Rect>,
 }
 
-impl MaxrectPacker {
-    pub fn new(width: u32, height: u32) -> MaxrectPacker {
+impl<'a> MaxrectPacker<'a> {
+    pub fn new(buf: &'a mut Buffer2d) -> MaxrectPacker<'a> {
+        let (width, height) = buf.dimensions();
+
         let mut free_areas = Vec::new();
         free_areas.push(Rect {
             x: 0,
@@ -30,7 +23,7 @@ impl MaxrectPacker {
         });
 
         MaxrectPacker {
-            buf: ImageRgba8(ImageBuf::new(width, height)),
+            buf: buf,
             free_areas: free_areas,
         }
     }
@@ -94,9 +87,7 @@ impl MaxrectPacker {
             w: area.w,
             h: area.h - rect.h,
         });
-    }
 
-    fn divide(&mut self, rect: &Rect) {
         let mut new_free_areas = Vec::new();
         for free_area in self.free_areas.iter() {
             new_free_areas = new_free_areas.append(free_area.crop(rect).as_slice());
@@ -129,19 +120,18 @@ impl MaxrectPacker {
     }
 }
 
-impl Packer for MaxrectPacker {
-    fn pack(&mut self, image: &DynamicImage) -> Option<Rect> {
-        let (image_width, image_height) = image.dimensions();
+impl<'a> Packer for MaxrectPacker<'a> {
+    fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
+        let (image_width, image_height) = buf.dimensions();
         match self.find_free_area(image_width, image_height) {
             Some((i, rect)) => {
                 if image_width == rect.w {
-                    patch(&mut self.buf, rect.x, rect.y, image);
+                    self.buf.patch(rect.x, rect.y, buf);
                 } else {
-                    patch_rotated(&mut self.buf, rect.x, rect.y, image);
+                    self.buf.patch_rotated(rect.x, rect.y, buf);
                 }
 
                 self.split(i, &rect);
-                self.divide(&rect);
                 self.merge();
 
                 Some(rect)
@@ -152,7 +142,7 @@ impl Packer for MaxrectPacker {
         }
     }
 
-    fn image(&self) -> &DynamicImage {
-        &self.buf
+    fn buf(&self) -> &Buffer2d {
+        self.buf
     }
 }
