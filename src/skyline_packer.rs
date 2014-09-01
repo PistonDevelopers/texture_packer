@@ -172,6 +172,8 @@ impl<'a> Packer for SkylinePacker<'a> {
                 self.split(i, &rect);
                 self.merge();
 
+                rect.w -= self.margin;
+                rect.h -= self.margin;
                 Some(rect)
             },
             _ => {

@@ -124,6 +124,8 @@ impl<'a> Packer for GuillotinePacker<'a> {
 
                 self.split(i, &rect);
 
+                rect.w -= self.margin;
+                rect.h -= self.margin;
                 Some(rect)
             },
             _ => {

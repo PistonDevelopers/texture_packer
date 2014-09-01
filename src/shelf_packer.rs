@@ -77,7 +77,9 @@ impl<'a> Packer for ShelfPacker<'a> {
                 self.opening_shelf_max_y = patched_height;
             }
 
-            Some(Rect::new(self.x, self.y, patched_width, patched_height))
+            Some(Rect::new(self.x, self.y,
+                           patched_width - self.margin,
+                           patched_height - self.margin))
         } else {
             None
         }
