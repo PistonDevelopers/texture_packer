@@ -115,7 +115,7 @@ impl<'a> Packer for GuillotinePacker<'a> {
         width += self.margin;
         height += self.margin;
         match self.find_free_area(width, height) {
-            Some((i, rect)) => {
+            Some((i, mut rect)) => {
                 if width == rect.w {
                     self.buf.patch(rect.x, rect.y, buf);
                 } else {
