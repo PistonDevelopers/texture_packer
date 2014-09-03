@@ -1,9 +1,6 @@
 
-use std::io::File;
-
 use image;
 use image::{
-    PNG,
     ImageBuf,
     ImageRgba8,
     ImageRgb8,
@@ -60,6 +57,10 @@ impl ImageBuffer {
             },
         }
     }
+
+    pub fn image(&self) -> &DynamicImage {
+        &self.image
+    }
 }
 
 impl Buffer2d for ImageBuffer {
@@ -91,11 +92,6 @@ impl Buffer2d for ImageBuffer {
                 self.image.put_pixel(x, y, val.to_rgba());
             },
         }
-    }
-
-    fn save(&self, path: &Path) {
-        let fout = File::create(path).unwrap();
-        let _ = self.image.save(fout, PNG);
     }
 }
 

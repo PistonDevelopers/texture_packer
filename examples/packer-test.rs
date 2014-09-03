@@ -1,8 +1,10 @@
 
+extern crate image;
 extern crate texture_packer;
 
+use std::io::File;
+
 use texture_packer::{
-    Buffer2d,
     ImageBuffer,
     RGBA,
     Packer,
@@ -15,7 +17,7 @@ use texture_packer::{
 static OUTPUT_IMAGE_WIDTH: u32 = 400;
 static OUTPUT_IMAGE_HEIGHT: u32 = 400;
 
-fn pack<B: Buffer2d>(packer: &mut Packer<B>, output_filename: &str) {
+fn pack(packer: &mut Packer<ImageBuffer>, output_filename: &str) {
     for i in range(1u32, 11) {
         let mut filename = String::from_str("./assets/");
         filename.push_str(format!("{}.png", i).as_slice());
@@ -25,7 +27,8 @@ fn pack<B: Buffer2d>(packer: &mut Packer<B>, output_filename: &str) {
         packer.pack(&image);
     }
 
-    let _ = packer.buf().save(&Path::new(output_filename));
+    let fout = File::create(&Path::new(output_filename)).unwrap();
+    let _ = packer.buf().image().save(fout, image::PNG);
 }
 
 fn main() {

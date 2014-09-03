@@ -16,7 +16,7 @@ pub struct ShelfPacker<'a, B: 'a + Buffer2d> {
 }
 
 impl<'a, B: Buffer2d> ShelfPacker<'a, B> {
-    pub fn new(mut buf: B) -> ShelfPacker<'a, B> {
+    pub fn new(buf: B) -> ShelfPacker<'a, B> {
         let (w, h) = buf.dimensions();
         ShelfPacker {
             buf: buf,

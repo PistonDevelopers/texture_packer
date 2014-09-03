@@ -5,7 +5,6 @@ pub trait Buffer2d {
     fn width(&self) -> u32;
     fn height(&self) -> u32;
 
-    fn save(&self, _path: &Path) { unimplemented!() }
     fn get(&self, _x: u32, _y: u32) -> Option<Color> { unimplemented!() }
     fn set(&mut self, _x: u32, _y: u32, _val: Color) { unimplemented!() }
 

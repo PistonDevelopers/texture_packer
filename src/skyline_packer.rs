@@ -23,7 +23,7 @@ pub struct SkylinePacker<'a, B: 'a + Buffer2d> {
 }
 
 impl<'a, B: Buffer2d> SkylinePacker<'a, B> {
-    pub fn new(mut buf: B) -> SkylinePacker<'a, B> {
+    pub fn new(buf: B) -> SkylinePacker<'a, B> {
         let (width, height) = buf.dimensions();
         let mut skylines = Vec::new();
         skylines.push(Skyline {

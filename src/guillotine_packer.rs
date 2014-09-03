@@ -12,7 +12,7 @@ pub struct GuillotinePacker<'a, B: 'a + Buffer2d> {
 }
 
 impl<'a, B: Buffer2d> GuillotinePacker<'a, B> {
-    pub fn new(mut buf: B) -> GuillotinePacker<'a, B> {
+    pub fn new(buf: B) -> GuillotinePacker<'a, B> {
         let (width, height) = buf.dimensions();
         let mut free_areas = Vec::new();
         free_areas.push(Rect {
