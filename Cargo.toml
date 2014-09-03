@@ -1,12 +1,9 @@
+
 [package]
 
 name = "texture-packer"
 version = "0.0.0"
 authors = ["Coeuvre <coeuvre@gmail.com>"]
-
-[[bin]]
-
-name = "texture-packer"
 
 [lib]
 
@@ -15,3 +12,4 @@ name = "texture_packer"
 [dependencies.image]
 
 git = "https://github.com/PistonDevelopers/rust-image"
+

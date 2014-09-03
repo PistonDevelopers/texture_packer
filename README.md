@@ -1,3 +1,4 @@
+
 # texture-packer
 
 A texture packer with rust-image
@@ -5,13 +6,14 @@ A texture packer with rust-image
 # screenshots
 
 ## Shelf Packer
-![shelf-packer](./bin/shelf-packer-output.png)
+![shelf-packer](./examples/output/shelf-packer-output.png)
 
 ## Guillotine Packer
-![guillotine-packer](./bin/guillotine-packer-output.png)
+![guillotine-packer](./examples/output/guillotine-packer-output.png)
 
 ## Maxrect Packer
-![maxrect-packer](./bin/maxrect-packer-output.png)
+![maxrect-packer](./examples/output/maxrect-packer-output.png)
 
 ## Skyline Packer
-![skyline-packer](./bin/skyline-packer-output.png)
+![skyline-packer](./examples/output/skyline-packer-output.png)
+

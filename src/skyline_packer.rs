@@ -14,16 +14,16 @@ struct Skyline {
     pub w: u32,
 }
 
-pub struct SkylinePacker<'a> {
-    buf: &'a mut Buffer2d,
+pub struct SkylinePacker<'a, B: 'a + Buffer2d> {
+    buf: B,
     width: u32,
     height: u32,
     skylines: Vec<Skyline>,
     margin: u32,
 }
 
-impl<'a> SkylinePacker<'a> {
-    pub fn new(buf: &'a mut Buffer2d) -> SkylinePacker<'a> {
+impl<'a, B: Buffer2d> SkylinePacker<'a, B> {
+    pub fn new(mut buf: B) -> SkylinePacker<'a, B> {
         let (width, height) = buf.dimensions();
         let mut skylines = Vec::new();
         skylines.push(Skyline {
@@ -155,7 +155,7 @@ impl<'a> SkylinePacker<'a> {
     }
 }
 
-impl<'a> Packer for SkylinePacker<'a> {
+impl<'a, B: Buffer2d> Packer<B> for SkylinePacker<'a, B> {
     fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
         let (mut width, mut height) = buf.dimensions();
         width += self.margin;
@@ -182,8 +182,8 @@ impl<'a> Packer for SkylinePacker<'a> {
         }
     }
 
-    fn buf(&self) -> &Buffer2d {
-        self.buf
+    fn buf(&self) -> &B {
+        &self.buf
     }
 
     fn set_margin(&mut self, val: u32) {
