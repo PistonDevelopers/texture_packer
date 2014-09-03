@@ -24,4 +24,6 @@
 rusti.sh
 watch.sh
 
+/examples/target/
+
 Cargo.lock

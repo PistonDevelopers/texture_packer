@@ -1,0 +1,17 @@
+
+[package]
+
+name = "packer-test"
+version = "0.0.0"
+authors = ["Coeuvre <coeuvre@gmail.com>"]
+
+[[bin]]
+
+name = "packer-test"
+
+path = "./packer-test.rs"
+
+[dependencies.texture-packer]
+
+path = "../"
+
