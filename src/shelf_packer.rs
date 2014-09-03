@@ -5,7 +5,7 @@ use {
     Packer,
 };
 
-pub struct ShelfPacker<'a, B: 'a + Buffer2d> {
+pub struct ShelfPacker<B: Buffer2d> {
     buf: B,
     width: u32,
     height: u32,
@@ -15,8 +15,8 @@ pub struct ShelfPacker<'a, B: 'a + Buffer2d> {
     margin: u32,
 }
 
-impl<'a, B: Buffer2d> ShelfPacker<'a, B> {
-    pub fn new(buf: B) -> ShelfPacker<'a, B> {
+impl<B: Buffer2d> ShelfPacker<B> {
+    pub fn new(buf: B) -> ShelfPacker<B> {
         let (w, h) = buf.dimensions();
         ShelfPacker {
             buf: buf,
@@ -31,7 +31,7 @@ impl<'a, B: Buffer2d> ShelfPacker<'a, B> {
 
 }
 
-impl<'a, B: Buffer2d> Packer<B> for ShelfPacker<'a, B> {
+impl<B: Buffer2d> Packer<B> for ShelfPacker<B> {
     fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
         let (mut buf_width, mut buf_height) = buf.dimensions();
         buf_width += self.margin;

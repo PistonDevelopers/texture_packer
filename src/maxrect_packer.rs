@@ -5,14 +5,14 @@ use {
     Rect,
 };
 
-pub struct MaxrectPacker<'a, B: 'a + Buffer2d> {
+pub struct MaxrectPacker<B: Buffer2d> {
     buf: B,
     free_areas: Vec<Rect>,
     margin: u32,
 }
 
-impl<'a, B: Buffer2d> MaxrectPacker<'a, B> {
-    pub fn new(buf: B) -> MaxrectPacker<'a, B> {
+impl<B: Buffer2d> MaxrectPacker<B> {
+    pub fn new(buf: B) -> MaxrectPacker<B> {
         let (width, height) = buf.dimensions();
 
         let mut free_areas = Vec::new();
@@ -122,7 +122,7 @@ impl<'a, B: Buffer2d> MaxrectPacker<'a, B> {
     }
 }
 
-impl<'a, B: Buffer2d> Packer<B> for MaxrectPacker<'a, B> {
+impl<B: Buffer2d> Packer<B> for MaxrectPacker<B> {
     fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
         let (mut width, mut height) = buf.dimensions();
         width += self.margin;

@@ -5,14 +5,14 @@ use {
     Packer,
 };
 
-pub struct GuillotinePacker<'a, B: 'a + Buffer2d> {
+pub struct GuillotinePacker<B: Buffer2d> {
     buf: B,
     free_areas: Vec<Rect>,
     margin: u32,
 }
 
-impl<'a, B: Buffer2d> GuillotinePacker<'a, B> {
-    pub fn new(buf: B) -> GuillotinePacker<'a, B> {
+impl<B: Buffer2d> GuillotinePacker<B> {
+    pub fn new(buf: B) -> GuillotinePacker<B> {
         let (width, height) = buf.dimensions();
         let mut free_areas = Vec::new();
         free_areas.push(Rect {
@@ -109,7 +109,7 @@ impl<'a, B: Buffer2d> GuillotinePacker<'a, B> {
     }
 }
 
-impl<'a, B: Buffer2d> Packer<B> for GuillotinePacker<'a, B> {
+impl<B: Buffer2d> Packer<B> for GuillotinePacker<B> {
     fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
         let (mut width, mut height) = buf.dimensions();
         width += self.margin;

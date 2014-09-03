@@ -14,7 +14,7 @@ struct Skyline {
     pub w: u32,
 }
 
-pub struct SkylinePacker<'a, B: 'a + Buffer2d> {
+pub struct SkylinePacker<B: Buffer2d> {
     buf: B,
     width: u32,
     height: u32,
@@ -22,8 +22,8 @@ pub struct SkylinePacker<'a, B: 'a + Buffer2d> {
     margin: u32,
 }
 
-impl<'a, B: Buffer2d> SkylinePacker<'a, B> {
-    pub fn new(buf: B) -> SkylinePacker<'a, B> {
+impl<B: Buffer2d> SkylinePacker<B> {
+    pub fn new(buf: B) -> SkylinePacker<B> {
         let (width, height) = buf.dimensions();
         let mut skylines = Vec::new();
         skylines.push(Skyline {
@@ -155,7 +155,7 @@ impl<'a, B: Buffer2d> SkylinePacker<'a, B> {
     }
 }
 
-impl<'a, B: Buffer2d> Packer<B> for SkylinePacker<'a, B> {
+impl<B: Buffer2d> Packer<B> for SkylinePacker<B> {
     fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
         let (mut width, mut height) = buf.dimensions();
         width += self.margin;
