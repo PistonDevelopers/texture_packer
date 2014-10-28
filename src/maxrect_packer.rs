@@ -92,7 +92,7 @@ impl<B: Buffer2d> MaxrectPacker<B> {
 
         let mut new_free_areas = Vec::new();
         for free_area in self.free_areas.iter() {
-            new_free_areas = new_free_areas.append(free_area.crop(rect).as_slice());
+            new_free_areas.push_all(free_area.crop(rect).as_slice());
         }
         self.free_areas = new_free_areas;
     }

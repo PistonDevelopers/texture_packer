@@ -1,0 +1,5 @@
+digraph example3 {
+    N0[label="texture-packer"];
+    N1[label="image"];
+    N0 -> N1[label=""];
+}

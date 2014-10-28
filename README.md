@@ -17,3 +17,7 @@ A texture packer with rust-image
 ## Skyline Packer
 ![skyline-packer](./examples/output/skyline-packer-output.png)
 
+## Dependencies
+
+![dependencies](./Cargo.png)
+
