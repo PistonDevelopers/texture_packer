@@ -1,5 +1,5 @@
 
-# texture-packer
+# texture-packer [![Build Status](https://travis-ci.org/PistonDevelopers/texture-packer.svg?branch=master)](https://travis-ci.org/PistonDevelopers/texture-packer)
 
 A texture packer with rust-image
 
