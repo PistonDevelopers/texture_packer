@@ -132,8 +132,8 @@ impl<B: Buffer2d> SkylinePacker<B> {
                 if self.skylines[i].w <= shrink {
                     self.skylines.remove(i);
                 } else {
-                    self.skylines.get_mut(i).x += shrink;
-                    self.skylines.get_mut(i).w -= shrink;
+                    self.skylines[i].x += shrink;
+                    self.skylines[i].w -= shrink;
                     break;
                 }
             } else {
@@ -146,7 +146,7 @@ impl<B: Buffer2d> SkylinePacker<B> {
         let mut i = 1;
         while i < self.skylines.len() {
             if self.skylines[i-1].y == self.skylines[i].y {
-                self.skylines.get_mut(i-1).w += self.skylines[i].w;
+                self.skylines[i-1].w += self.skylines[i].w;
                 self.skylines.remove(i);
                 i -= 1;
             }
