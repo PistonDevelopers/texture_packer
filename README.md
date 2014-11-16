@@ -3,6 +3,8 @@
 
 A texture packer with rust-image
 
+[How to contribute](https://github.com/PistonDevelopers/piston/blob/master/CONTRIBUTING.md)
+
 # screenshots
 
 ## Shelf Packer
