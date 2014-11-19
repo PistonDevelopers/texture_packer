@@ -12,15 +12,7 @@ use image::{
 
 use {
     ColorType,
-    RGBA,
-    RGB,
-    Grey,
-
     Color,
-    RGBA8,
-    RGB8,
-    Grey8,
-
     Buffer2d,
 };
 
@@ -32,13 +24,13 @@ impl ImageBuffer {
     pub fn new(w: u32, h: u32, color_type: ColorType) -> ImageBuffer {
         ImageBuffer {
             image: match color_type {
-                RGBA => {
+                ColorType::RGBA => {
                    ImageRgba8(ImageBuf::new(w, h))
                 },
-                RGB => {
+                ColorType::RGB => {
                     ImageRgb8(ImageBuf::new(w, h))
                 },
-                Grey => {
+                ColorType::Grey => {
                     ImageLuma8(ImageBuf::new(w, h))
                 },
             },
@@ -77,18 +69,18 @@ impl Buffer2d for ImageBuffer {
     }
 
     fn get(&self, x: u32, y: u32) -> Option<Color> {
-        Some(RGBA8(self.image.get_pixel(x, y)))
+        Some(Color::RGBA8(self.image.get_pixel(x, y)))
     }
 
     fn set(&mut self, x: u32, y: u32, val: Color) {
         match val {
-            RGBA8(val) => {
+            Color::RGBA8(val) => {
                 self.image.put_pixel(x, y, val);
             },
-            RGB8(val) => {
+            Color::RGB8(val) => {
                 self.image.put_pixel(x, y, val.to_rgba());
             },
-            Grey8(val) => {
+            Color::Grey8(val) => {
                 self.image.put_pixel(x, y, val.to_rgba());
             },
         }

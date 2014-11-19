@@ -11,14 +11,7 @@ pub use buffer2d::Buffer2d;
 pub use image_buffer::ImageBuffer;
 pub use color::{
     ColorType,
-    RGBA,
-    RGB,
-    Grey,
-
     Color,
-    RGBA8,
-    RGB8,
-    Grey8,
 };
 
 mod packer;

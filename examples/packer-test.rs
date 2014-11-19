@@ -5,8 +5,8 @@ extern crate texture_packer;
 use std::io::File;
 
 use texture_packer::{
+    ColorType,
     ImageBuffer,
-    RGBA,
     Packer,
     ShelfPacker,
     GuillotinePacker,
@@ -32,9 +32,9 @@ fn pack(packer: &mut Packer<ImageBuffer>, output_filename: &str) {
 }
 
 fn main() {
-    pack(&mut ShelfPacker::new(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, RGBA)), "shelf-packer-output.png");
-    pack(&mut GuillotinePacker::new(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, RGBA)), "guillotine-packer-output.png");
-    pack(&mut MaxrectPacker::new(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, RGBA)), "maxrect-packer-output.png");
-    pack(&mut SkylinePacker::new(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, RGBA)), "skyline-packer-output.png");
+    pack(&mut ShelfPacker::new(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, ColorType::RGBA)), "shelf-packer-output.png");
+    pack(&mut GuillotinePacker::new(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, ColorType::RGBA)), "guillotine-packer-output.png");
+    pack(&mut MaxrectPacker::new(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, ColorType::RGBA)), "maxrect-packer-output.png");
+    pack(&mut SkylinePacker::new(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT, ColorType::RGBA)), "skyline-packer-output.png");
 }
 
