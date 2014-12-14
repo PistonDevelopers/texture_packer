@@ -1,7 +1,7 @@
 
 use image;
 use image::{
-    ImageBuf,
+    ImageBuffer,
     ImageRgba8,
     ImageRgb8,
     ImageLuma8,
@@ -16,31 +16,31 @@ use {
     Buffer2d,
 };
 
-pub struct ImageBuffer {
+pub struct ImgBuffer {
     image: DynamicImage,
 }
 
-impl ImageBuffer {
-    pub fn new(w: u32, h: u32, color_type: ColorType) -> ImageBuffer {
-        ImageBuffer {
+impl ImgBuffer {
+    pub fn new(w: u32, h: u32, color_type: ColorType) -> ImgBuffer {
+        ImgBuffer {
             image: match color_type {
                 ColorType::RGBA => {
-                   ImageRgba8(ImageBuf::new(w, h))
+                   ImageRgba8(ImageBuffer::new(w, h))
                 },
                 ColorType::RGB => {
-                    ImageRgb8(ImageBuf::new(w, h))
+                    ImageRgb8(ImageBuffer::new(w, h))
                 },
                 ColorType::Grey => {
-                    ImageLuma8(ImageBuf::new(w, h))
+                    ImageLuma8(ImageBuffer::new(w, h))
                 },
             },
         }
     }
 
-    pub fn open(path: &Path) -> Option<ImageBuffer> {
+    pub fn open(path: &Path) -> Option<ImgBuffer> {
         match image::open(path) {
             Ok(dynimage) => {
-                Some(ImageBuffer {
+                Some(ImgBuffer {
                     image: dynimage,
                 })
             },
@@ -55,7 +55,7 @@ impl ImageBuffer {
     }
 }
 
-impl Buffer2d for ImageBuffer {
+impl Buffer2d for ImgBuffer {
     fn width(&self) -> u32 {
         match self.image.dimensions() {
             (w, _) => { w },

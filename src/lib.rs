@@ -8,7 +8,7 @@ pub use maxrect_packer::MaxrectPacker;
 pub use skyline_packer::SkylinePacker;
 pub use rect::Rect;
 pub use buffer2d::Buffer2d;
-pub use image_buffer::ImageBuffer;
+pub use image_buffer::ImgBuffer;
 pub use color::{
     ColorType,
     Color,
