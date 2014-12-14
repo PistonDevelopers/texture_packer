@@ -1,7 +1,7 @@
 
 [package]
 
-name = "texture-packer"
+name = "texture_packer"
 version = "0.0.0"
 authors = ["Coeuvre <coeuvre@gmail.com>"]
 
