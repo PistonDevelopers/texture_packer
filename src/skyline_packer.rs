@@ -41,7 +41,7 @@ impl<B: Buffer2d> SkylinePacker<B> {
         }
     }
 
-    fn can_put(&self, i: uint, w: u32, h: u32) -> Option<u32> {
+    fn can_put(&self, i: usize, w: u32, h: u32) -> Option<u32> {
         let x = self.skylines[i].x;
         if x + w > self.width {
             return None;
@@ -63,7 +63,7 @@ impl<B: Buffer2d> SkylinePacker<B> {
         }
     }
 
-    fn find_skyline(&self, w: u32, h: u32) -> Option<(uint, Rect)> {
+    fn find_skyline(&self, w: u32, h: u32) -> Option<(usize, Rect)> {
         let mut min_height = std::u32::MAX;
         let mut min_width = std::u32::MAX;
         let mut index = None;
@@ -111,7 +111,7 @@ impl<B: Buffer2d> SkylinePacker<B> {
         }
     }
 
-    fn split(&mut self, index: uint, rect: &Rect) {
+    fn split(&mut self, index: usize, rect: &Rect) {
         let skyline = Skyline {
             x: rect.x,
             y: rect.y + rect.h,

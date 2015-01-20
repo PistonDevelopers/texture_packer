@@ -5,14 +5,14 @@ use image::{
     Luma,
 };
 
-#[deriving(Copy)]
+#[derive(Copy, Clone)]
 pub enum ColorType {
     Grey,
     RGB,
     RGBA,
 }
 
-#[deriving(Copy)]
+#[derive(Copy, Clone)]
 pub enum Color {
     RGBA8(Rgba<u8>),
     RGB8(Rgb<u8>),

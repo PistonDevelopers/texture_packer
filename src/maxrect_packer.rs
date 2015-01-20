@@ -30,7 +30,7 @@ impl<B: Buffer2d> MaxrectPacker<B> {
         }
     }
 
-    fn find_free_area(&self, w: u32, h: u32) -> Option<(uint, Rect)> {
+    fn find_free_area(&self, w: u32, h: u32) -> Option<(usize, Rect)> {
         let mut min_x = None;
         let mut min_y = None;
         let mut index = None;
@@ -74,8 +74,8 @@ impl<B: Buffer2d> MaxrectPacker<B> {
         }
     }
 
-    fn split(&mut self, index: uint, rect: &Rect) {
-        let area = self.free_areas.remove(index).unwrap();
+    fn split(&mut self, index: usize, rect: &Rect) {
+        let area = self.free_areas.remove(index);
         self.free_areas.push(Rect {
             x: area.x + rect.w,
             y: area.y,

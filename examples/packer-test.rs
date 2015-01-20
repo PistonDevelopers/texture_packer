@@ -19,7 +19,7 @@ static OUTPUT_IMAGE_HEIGHT: u32 = 400;
 
 fn pack(packer: &mut Packer<ImgBuffer>, output_filename: &str) {
     for i in range(1u32, 11) {
-        let mut filename = String::from_str("./assets/");
+        let mut filename = "./assets/".to_string();
         filename.push_str(format!("{}.png", i).as_slice());
         let image = ImgBuffer::open(&Path::new(filename)).unwrap();
 

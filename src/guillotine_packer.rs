@@ -30,7 +30,7 @@ impl<B: Buffer2d> GuillotinePacker<B> {
     }
 
     // Best Area Fit
-    fn find_free_area(&self, w: u32, h: u32) -> Option<(uint, Rect)> {
+    fn find_free_area(&self, w: u32, h: u32) -> Option<(usize, Rect)> {
         let mut index = None;
         let mut min_area = None;
         let mut rect = Rect::new(0, 0, 0, 0);
@@ -71,8 +71,8 @@ impl<B: Buffer2d> GuillotinePacker<B> {
     }
 
     // Shorter Axis Split
-    fn split(&mut self, index: uint, rect: &Rect) {
-        let area = self.free_areas.remove(index).unwrap();
+    fn split(&mut self, index: usize, rect: &Rect) {
+        let area = self.free_areas.remove(index);
 
         // Split horizontally
         if area.w < area.h {
