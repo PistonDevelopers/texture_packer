@@ -27,3 +27,4 @@ watch.sh
 /examples/target/
 
 Cargo.lock
+*.png

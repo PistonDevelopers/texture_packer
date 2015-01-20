@@ -12,24 +12,6 @@ pub struct MaxrectPacker<B: Buffer2d> {
 }
 
 impl<B: Buffer2d> MaxrectPacker<B> {
-    pub fn new(buf: B) -> MaxrectPacker<B> {
-        let (width, height) = buf.dimensions();
-
-        let mut free_areas = Vec::new();
-        free_areas.push(Rect {
-            x: 0,
-            y: 0,
-            w: width,
-            h: height,
-        });
-
-        MaxrectPacker {
-            buf: buf,
-            free_areas: free_areas,
-            margin: 0,
-        }
-    }
-
     fn find_free_area(&self, w: u32, h: u32) -> Option<(usize, Rect)> {
         let mut min_x = None;
         let mut min_y = None;
@@ -122,8 +104,27 @@ impl<B: Buffer2d> MaxrectPacker<B> {
     }
 }
 
-impl<B: Buffer2d> Packer<B> for MaxrectPacker<B> {
-    fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
+impl<B: Buffer2d> Packer for MaxrectPacker<B> {
+    type Buffer = B;
+    fn new(buf: B) -> MaxrectPacker<B> {
+        let (width, height) = buf.dimensions();
+
+        let mut free_areas = Vec::new();
+        free_areas.push(Rect {
+            x: 0,
+            y: 0,
+            w: width,
+            h: height,
+        });
+
+        MaxrectPacker {
+            buf: buf,
+            free_areas: free_areas,
+            margin: 0,
+        }
+    }
+
+    fn pack<O: Buffer2d<Pixel=B::Pixel>>(&mut self, buf: &O) -> Option<Rect> {
         let (mut width, mut height) = buf.dimensions();
         width += self.margin;
         height += self.margin;
@@ -150,6 +151,10 @@ impl<B: Buffer2d> Packer<B> for MaxrectPacker<B> {
 
     fn buf(&self) -> &B {
         &self.buf
+    }
+
+    fn into_buf(self) -> B {
+        self.buf
     }
 
     fn set_margin(&mut self, val: u32) {
