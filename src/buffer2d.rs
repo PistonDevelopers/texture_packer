@@ -1,12 +1,11 @@
-
 use Color;
 
 pub trait Buffer2d {
     fn width(&self) -> u32;
     fn height(&self) -> u32;
 
-    fn get(&self, _x: u32, _y: u32) -> Option<Color> { unimplemented!() }
-    fn set(&mut self, _x: u32, _y: u32, _val: Color) { unimplemented!() }
+    fn get(&self, _x: u32, _y: u32) -> Option<Color>;
+    fn set(&mut self, _x: u32, _y: u32, _val: Color);
 
     fn patch(&mut self, x: u32, y: u32, buf: &Buffer2d) {
         let (w, h) = buf.dimensions();
