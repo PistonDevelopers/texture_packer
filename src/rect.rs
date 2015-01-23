@@ -1,5 +1,5 @@
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct Rect {
     pub x: u32,
     pub y: u32,
@@ -65,9 +65,16 @@ impl Rect {
         self.bottom() >= other.bottom()
     }
 
+    pub fn contains_point(&self, x: u32, y: u32) -> bool {
+        self.left() <= x &&
+        self.right() >= x &&
+        self.top() <= y &&
+        self.bottom() >= y
+    }
+
     pub fn crop(&self, other: &Rect) -> Vec<Rect> {
         if !self.intersects(other) {
-            return vec!(*self);
+            return vec!(self.clone());
         }
 
         let inside_x1 = if other.left() < self.left() {
