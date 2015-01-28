@@ -23,24 +23,6 @@ pub struct SkylinePacker<B: Buffer2d> {
 }
 
 impl<B: Buffer2d> SkylinePacker<B> {
-    pub fn new(buf: B) -> SkylinePacker<B> {
-        let (width, height) = buf.dimensions();
-        let mut skylines = Vec::new();
-        skylines.push(Skyline {
-            x: 0,
-            y: 0,
-            w: width,
-        });
-
-        SkylinePacker {
-            buf: buf,
-            width: width,
-            height: height,
-            skylines: skylines,
-            margin: 0,
-        }
-    }
-
     fn can_put(&self, i: usize, w: u32, h: u32) -> Option<u32> {
         let x = self.skylines[i].x;
         if x + w > self.width {
@@ -155,8 +137,28 @@ impl<B: Buffer2d> SkylinePacker<B> {
     }
 }
 
-impl<B: Buffer2d> Packer<B> for SkylinePacker<B> {
-    fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
+impl<B: Buffer2d> Packer for SkylinePacker<B> {
+    type Buffer = B;
+
+    fn new(buf: B) -> SkylinePacker<B> {
+        let (width, height) = buf.dimensions();
+        let mut skylines = Vec::new();
+        skylines.push(Skyline {
+            x: 0,
+            y: 0,
+            w: width,
+        });
+
+        SkylinePacker {
+            buf: buf,
+            width: width,
+            height: height,
+            skylines: skylines,
+            margin: 0,
+        }
+    }
+
+    fn pack<O: Buffer2d<Pixel=B::Pixel>>(&mut self, buf: &O) -> Option<Rect> {
         let (mut width, mut height) = buf.dimensions();
         width += self.margin;
         height += self.margin;
@@ -184,6 +186,10 @@ impl<B: Buffer2d> Packer<B> for SkylinePacker<B> {
 
     fn buf(&self) -> &B {
         &self.buf
+    }
+
+    fn into_buf(self) -> B {
+        self.buf
     }
 
     fn set_margin(&mut self, val: u32) {

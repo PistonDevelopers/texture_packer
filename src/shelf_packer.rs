@@ -15,8 +15,10 @@ pub struct ShelfPacker<B: Buffer2d> {
     margin: u32,
 }
 
-impl<B: Buffer2d> ShelfPacker<B> {
-    pub fn new(buf: B) -> ShelfPacker<B> {
+impl<B: Buffer2d> Packer for ShelfPacker<B> {
+    type Buffer = B;
+
+    fn new(buf: B) -> ShelfPacker<B> {
         let (w, h) = buf.dimensions();
         ShelfPacker {
             buf: buf,
@@ -29,10 +31,7 @@ impl<B: Buffer2d> ShelfPacker<B> {
         }
     }
 
-}
-
-impl<B: Buffer2d> Packer<B> for ShelfPacker<B> {
-    fn pack(&mut self, buf: &Buffer2d) -> Option<Rect> {
+    fn pack<O: Buffer2d<Pixel=B::Pixel>>(&mut self, buf: &O) -> Option<Rect> {
         let (mut buf_width, mut buf_height) = buf.dimensions();
         buf_width += self.margin;
         buf_height += self.margin;
@@ -87,6 +86,10 @@ impl<B: Buffer2d> Packer<B> for ShelfPacker<B> {
 
     fn buf(&self) -> &B {
         &self.buf
+    }
+
+    fn into_buf(self) -> B {
+        self.buf
     }
 
     fn set_margin(&mut self, val: u32) {
