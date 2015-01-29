@@ -21,6 +21,8 @@ struct Skyline {
 
 pub struct SkylinePacker<P: Pixel> {
     config: TexturePackerConfig,
+
+    // the skylines are sorted by their `x` position
     skylines: Vec<Skyline>,
 }
 
@@ -156,27 +158,24 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
         let width = texture.width();
         let height = texture.height();
 
-        match self.find_skyline(width, height) {
-            Some((i, rect)) => {
-                self.split(i, &rect);
-                self.merge();
+        if let Some((i, rect)) = self.find_skyline(width, height) {
+            self.split(i, &rect);
+            self.merge();
 
-                Some(Frame {
-                    key: key,
-                    frame: rect,
-                    rotated: width != rect.w,
-                    trimmed: false,
-                    source: Rect {
-                        x: 0,
-                        y: 0,
-                        w: texture.width(),
-                        h: texture.height(),
-                    },
-                })
-            },
-            _ => {
-                None
-            },
+            Some(Frame {
+                key: key,
+                frame: rect,
+                rotated: width != rect.w,
+                trimmed: false,
+                source: Rect {
+                    x: 0,
+                    y: 0,
+                    w: texture.width(),
+                    h: texture.height(),
+                },
+            })
+        } else {
+            None
         }
     }
 }

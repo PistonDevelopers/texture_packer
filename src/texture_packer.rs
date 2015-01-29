@@ -20,6 +20,7 @@ pub struct TexturePacker<'a, P: Pixel> {
     textures: HashMap<String, Box<Texture<Pixel = P> + 'a>>,
     frames: HashMap<String, Frame>,
     packer: Box<Packer<Pixel = P> + 'a>,
+    config: TexturePackerConfig,
 }
 
 impl<'a, P: Pixel> TexturePacker<'a, P> {
@@ -34,6 +35,7 @@ impl<'a, P: Pixel> TexturePacker<'a, P> {
             textures: HashMap::new(),
             frames: HashMap::new(),
             packer: packer,
+            config: config,
         }
     }
 
@@ -96,16 +98,20 @@ impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
 
     fn get(&self, x: u32, y: u32) -> Option<P> {
         if let Some(frame) = self.get_frame_at(x, y) {
-           if let Some(texture) = self.textures.get(&frame.key) {
+            if let Some(texture) = self.textures.get(&frame.key) {
+                if self.config.texture_outlines && frame.frame.at_outline(x, y) {
+                    return Some(<P as Pixel>::outline());
+                }
+
                 let x = x - frame.frame.x;
                 let y = y - frame.frame.y;
+
                 return if frame.rotated {
                     texture.get_rotated(x, y)
                 } else {
                     texture.get(x, y)
                 };
-
-           }
+            }
         }
 
         None

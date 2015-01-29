@@ -39,8 +39,12 @@ impl Pixel for Rgba<u8> {
         self[3] == 0
     }
 
-    fn transparency() -> Option<Self> {
+    fn transparency() -> Option<Rgba<u8>> {
         Some(Rgba([0; 4]))
+    }
+
+    fn outline() -> Rgba<u8> {
+        Rgba([255, 0, 0, 255])
     }
 }
 
@@ -49,7 +53,11 @@ impl Pixel for Rgb<u8> {
         false
     }
 
-    fn transparency() -> Option<Self> {
+    fn transparency() -> Option<Rgb<u8>> {
         None
+    }
+
+    fn outline() -> Rgb<u8> {
+        Rgb([255, 0, 0])
     }
 }

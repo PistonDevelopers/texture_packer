@@ -13,7 +13,9 @@ pub struct TexturePackerConfig {
     // texture configuration
     //
     pub border_padding: u32,
-    pub shape_padding: u32,
+    pub texture_padding: u32,
+
+    pub texture_outlines: bool,
 }
 
 impl TexturePackerConfig {
@@ -26,7 +28,9 @@ impl TexturePackerConfig {
             allow_rotation: true,
 
             border_padding: 0,
-            shape_padding: 2,
+            texture_padding: 2,
+
+            texture_outlines: false,
         }
     }
 }

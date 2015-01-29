@@ -71,6 +71,10 @@ impl Rect {
         self.bottom() >= y
     }
 
+    pub fn at_outline(&self, x: u32, y: u32) -> bool {
+        x == self.left() || x == self.right() || y == self.top() || y == self.bottom()
+    }
+
     pub fn crop(&self, other: &Rect) -> Vec<Rect> {
         if !self.intersects(other) {
             return vec!(self.clone());
