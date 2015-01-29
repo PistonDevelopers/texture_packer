@@ -1,7 +1,13 @@
 use texture::Texture;
 
-pub trait Importer {
+pub use self::image_importer::ImageImporter;
+
+mod image_importer;
+
+pub type ImportResult<T> = Result<T, String>;
+
+pub trait Importer<I> {
     type Texture: Texture;
 
-    fn import_from_file(filename: &str) -> Self::Texture;
+    fn import(input: I) -> ImportResult<Self::Texture>;
 }

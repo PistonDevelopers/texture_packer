@@ -1,58 +1,105 @@
 use std::collections::HashMap;
 
-use pixel::Pixel;
-use texture::Texture;
-use frame::Frame;
+use {
+    TexturePackerAlrogithm,
+    TexturePackerConfig,
+};
 
-pub struct TexturePacker<'a> {
-    textures: HashMap<String, Box<Texture + 'a>>,
+use texture::{
+    Pixel,
+    Texture,
+};
+
+use frame::Frame;
+use packer::{
+    Packer,
+    SkylinePacker,
+};
+
+pub struct TexturePacker<'a, P: Pixel> {
+    textures: HashMap<String, Box<Texture<Pixel = P> + 'a>>,
     frames: Vec<Frame>,
+    packer: Box<Packer<Pixel = P> + 'a>,
 }
 
-impl<'a> TexturePacker<'a> {
-    pub fn pack(&self) {
-        unimplemented!()
+impl<'a, P: Pixel> TexturePacker<'a, P> {
+    pub fn new(config: TexturePackerConfig) -> TexturePacker<'a, P> {
+        let packer = match config.algorithm {
+            TexturePackerAlrogithm::Skyline => {
+                Box::new(SkylinePacker::new(config))
+            }
+        };
+
+        TexturePacker {
+            textures: HashMap::new(),
+            frames: Vec::new(),
+            packer: packer,
+        }
+    }
+
+    pub fn pack(&mut self, key: String, texture: Box<Texture<Pixel = P> + 'a>) {
+        if let Some(frame) = self.packer.pack(key.clone(), &*texture) {
+            self.frames.push(frame);
+        }
+
+        self.textures.insert(key, texture);
+    }
+
+    fn get_frame_at(&self, x: u32, y: u32) -> Option<&Frame> {
+        for frame in self.frames.iter() {
+            if frame.frame.contains_point(x, y) {
+                return Some(frame);
+            }
+        }
+        None
     }
 }
 
-impl<'a> Texture for TexturePacker<'a> {
+impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
+    type Pixel = P;
+
     fn width(&self) -> u32 {
-        let mut width = 0;
+        let mut right = 0;
 
         for frame in self.frames.iter() {
-            if frame.frame.right() > width {
-                width = frame.frame.right();
+            if frame.frame.right() > right {
+                right = frame.frame.right();
             }
         }
 
-        width
+        right + 1
     }
 
     fn height(&self) -> u32 {
-        let mut height = 0;
+        let mut bottom = 0;
 
         for frame in self.frames.iter() {
-            if frame.frame.bottom() > height {
-                height = frame.frame.bottom();
+            if frame.frame.bottom() > bottom {
+                bottom = frame.frame.bottom();
             }
         }
 
-        height
+        bottom + 1
     }
 
-    fn get(&self, x: u32, y: u32) -> Pixel {
-        for frame in self.frames.iter() {
-            if frame.frame.contains_point(x, y) {
-               if let texture = self.textures.get(&frame.key) {
-                   return texture.get(x - frame.frame.x, y - frame.frame.y);
-               }
-            }
+    fn get(&self, x: u32, y: u32) -> Option<P> {
+        if let Some(frame) = self.get_frame_at(x, y) {
+           if let Some(texture) = self.textures.get(&frame.key) {
+                let x = x - frame.frame.x;
+                let y = y - frame.frame.y;
+                return if frame.rotated {
+                    texture.get_rotated(x, y)
+                } else {
+                    texture.get(x, y)
+                };
+
+           }
         }
 
-        Pixel { r: 0, g: 0, b: 0, a: 0 }
+        None
     }
 
-    fn set(&mut self, x: u32, y: u32, val: Pixel) {
-        unimplemented!()
+    fn set(&mut self, _x: u32, _y: u32, _val: P) {
+        panic!("Can't set pixel directly");
     }
 }

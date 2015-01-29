@@ -1,5 +1,5 @@
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct Rect {
     pub x: u32,
     pub y: u32,
@@ -33,7 +33,7 @@ impl Rect {
 
     #[inline(always)]
     pub fn bottom(&self) -> u32 {
-        self.y + self.h
+        self.y + self.h - 1
     }
 
     #[inline(always)]
@@ -43,7 +43,7 @@ impl Rect {
 
     #[inline(always)]
     pub fn right(&self) -> u32 {
-        self.x + self.w
+        self.x + self.w - 1
     }
 
     #[inline(always)]

@@ -1,12 +1,16 @@
 
-use {
-    Buffer2d,
-    Rect,
+use texture::{
+    Pixel,
+    Texture,
 };
+use frame::Frame;
 
-pub trait Packer<B: Buffer2d> {
-    fn buf(&self) -> &B;
-    fn pack(&mut self, buf: &Buffer2d) -> Option<Rect>;
-    fn set_margin(&mut self, _val: u32) {}
+pub use self::skyline_packer::SkylinePacker;
+
+mod skyline_packer;
+
+pub trait Packer {
+    type Pixel: Pixel;
+
+    fn pack(&mut self, key: String, texture: &Texture<Pixel = Self::Pixel>) -> Option<Frame>;
 }
-
