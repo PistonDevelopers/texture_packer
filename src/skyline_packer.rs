@@ -69,6 +69,7 @@ impl<B: Buffer2d> SkylinePacker<B> {
                 _ => {},
             }
 
+            /*
             match self.can_put(i, h, w) {
                 Some(y) => {
                     if y + w < min_height ||
@@ -83,7 +84,7 @@ impl<B: Buffer2d> SkylinePacker<B> {
                     }
                 },
                 _ => {},
-            }
+            }*/
         }
 
         if index.is_some() {
