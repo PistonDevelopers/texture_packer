@@ -18,7 +18,7 @@ use packer::{
 
 pub struct TexturePacker<'a, P: Pixel> {
     textures: HashMap<String, Box<Texture<Pixel = P> + 'a>>,
-    frames: Vec<Frame>,
+    frames: HashMap<String, Frame>,
     packer: Box<Packer<Pixel = P> + 'a>,
 }
 
@@ -32,21 +32,33 @@ impl<'a, P: Pixel> TexturePacker<'a, P> {
 
         TexturePacker {
             textures: HashMap::new(),
-            frames: Vec::new(),
+            frames: HashMap::new(),
             packer: packer,
         }
     }
 
     pub fn pack(&mut self, key: String, texture: Box<Texture<Pixel = P> + 'a>) {
         if let Some(frame) = self.packer.pack(key.clone(), &*texture) {
-            self.frames.push(frame);
+            self.frames.insert(key.clone(), frame);
         }
 
         self.textures.insert(key, texture);
     }
 
+    pub fn get_frames(&self) -> HashMap<String, Frame> {
+        self.frames.clone()
+    }
+
+    pub fn get_frame(&self, key: &str) -> Option<Frame> {
+        if let Some(frame) = self.frames.get(key) {
+            Some(frame.clone())
+        } else {
+            None
+        }
+    }
+
     fn get_frame_at(&self, x: u32, y: u32) -> Option<&Frame> {
-        for frame in self.frames.iter() {
+        for (_, frame) in self.frames.iter() {
             if frame.frame.contains_point(x, y) {
                 return Some(frame);
             }
@@ -61,7 +73,7 @@ impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
     fn width(&self) -> u32 {
         let mut right = 0;
 
-        for frame in self.frames.iter() {
+        for (_, frame) in self.frames.iter() {
             if frame.frame.right() > right {
                 right = frame.frame.right();
             }
@@ -73,7 +85,7 @@ impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
     fn height(&self) -> u32 {
         let mut bottom = 0;
 
-        for frame in self.frames.iter() {
+        for (_, frame) in self.frames.iter() {
             if frame.frame.bottom() > bottom {
                 bottom = frame.frame.bottom();
             }

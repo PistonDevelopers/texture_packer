@@ -1,4 +1,3 @@
-
 use texture::{
     Pixel,
     Texture,

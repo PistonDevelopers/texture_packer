@@ -1,3 +1,5 @@
+#![feature(collections)]
+
 extern crate image;
 
 pub use rect::Rect;

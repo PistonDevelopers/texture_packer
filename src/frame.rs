@@ -1,6 +1,6 @@
-
 use rect::Rect;
 
+#[derive(Clone)]
 pub struct Frame {
     pub key: String,
     pub frame: Rect,
