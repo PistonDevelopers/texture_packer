@@ -40,7 +40,9 @@ impl<'a, P: Pixel> TexturePacker<'a, P> {
     }
 
     pub fn pack(&mut self, key: String, texture: Box<Texture<Pixel = P> + 'a>) {
-        if let Some(frame) = self.packer.pack(key.clone(), &*texture) {
+        if let Some(mut frame) = self.packer.pack(key.clone(), &*texture) {
+            frame.frame.x += self.config.border_padding;
+            frame.frame.y += self.config.border_padding;
             self.frames.insert(key.clone(), frame);
         }
 
@@ -81,7 +83,7 @@ impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
             }
         }
 
-        right + 1
+        right + 1 + self.config.border_padding
     }
 
     fn height(&self) -> u32 {
@@ -93,13 +95,19 @@ impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
             }
         }
 
-        bottom + 1
+        bottom + 1 + self.config.border_padding
     }
 
     fn get(&self, x: u32, y: u32) -> Option<P> {
+        use rect::Rect;
+        let rect = Rect::new(0, 0, self.width(), self.height());
+        if rect.is_outline(x, y) {
+            return Some(<P as Pixel>::outline());
+        }
+
         if let Some(frame) = self.get_frame_at(x, y) {
             if let Some(texture) = self.textures.get(&frame.key) {
-                if self.config.texture_outlines && frame.frame.at_outline(x, y) {
+                if self.config.texture_outlines && frame.frame.is_outline(x, y) {
                     return Some(<P as Pixel>::outline());
                 }
 

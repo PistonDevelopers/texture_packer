@@ -71,7 +71,7 @@ impl Rect {
         self.bottom() >= y
     }
 
-    pub fn at_outline(&self, x: u32, y: u32) -> bool {
+    pub fn is_outline(&self, x: u32, y: u32) -> bool {
         x == self.left() || x == self.right() || y == self.top() || y == self.bottom()
     }
 

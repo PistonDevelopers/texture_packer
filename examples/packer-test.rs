@@ -26,7 +26,7 @@ fn main() {
     config.max_height = MAX_IMAGE_HEIGHT;
     config.allow_rotation = false;
     config.texture_outlines = true;
-    config.texture_padding = 1;
+    config.border_padding = 2;
 
     let mut texture_packer = TexturePacker::new(config);
 
