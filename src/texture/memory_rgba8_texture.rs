@@ -30,20 +30,14 @@ pub struct MemoryRGBA8Texture {
 impl MemoryRGBA8Texture {
     pub fn from_memory(buf: &[u8], w: u32, h: u32) -> MemoryRGBA8Texture {
         let mut pixels = Vec::new();
-        let mut pixel = [0; 4];
-        let mut i = 0;
 
-        for byte in buf.iter() {
-            pixel[i % 4] = *byte;
-            i += 1;
-            if i % 4 == 0 {
-                pixels.push(RGBA8 {
-                    r: pixel[0],
-                    g: pixel[1],
-                    b: pixel[2],
-                    a: pixel[3],
-                });
-            }
+        for pixel in buf.chunks(4) {
+            pixels.push(RGBA8 {
+                r: pixel[0],
+                g: pixel[1],
+                b: pixel[2],
+                a: pixel[3],
+            });
         }
 
         MemoryRGBA8Texture {
