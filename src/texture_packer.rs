@@ -99,12 +99,6 @@ impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
     }
 
     fn get(&self, x: u32, y: u32) -> Option<P> {
-        use rect::Rect;
-        let rect = Rect::new(0, 0, self.width(), self.height());
-        if rect.is_outline(x, y) {
-            return Some(<P as Pixel>::outline());
-        }
-
         if let Some(frame) = self.get_frame_at(x, y) {
             if let Some(texture) = self.textures.get(&frame.key) {
                 if self.config.texture_outlines && frame.frame.is_outline(x, y) {
