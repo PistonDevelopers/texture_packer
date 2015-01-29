@@ -155,17 +155,25 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
     type Pixel = P;
 
     fn pack(&mut self, key: String, texture: &Texture<Pixel=P>) -> Option<Frame> {
-        let width = texture.width();
-        let height = texture.height();
+        let mut width = texture.width();
+        let mut height = texture.height();
 
-        if let Some((i, rect)) = self.find_skyline(width, height) {
+        width += self.config.texture_padding;
+        height += self.config.texture_padding;
+
+        if let Some((i, mut rect)) = self.find_skyline(width, height) {
             self.split(i, &rect);
             self.merge();
+
+            let rotated = width != rect.w;
+
+            rect.w -= self.config.texture_padding;
+            rect.h -= self.config.texture_padding;
 
             Some(Frame {
                 key: key,
                 frame: rect,
-                rotated: width != rect.w,
+                rotated: rotated,
                 trimmed: false,
                 source: Rect {
                     x: 0,
