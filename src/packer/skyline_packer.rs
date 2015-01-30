@@ -1,11 +1,16 @@
-
 use std;
 use std::cmp::max;
 
 use {
-    Buffer2d,
-    Packer,
+    TexturePackerConfig,
     Rect,
+    Frame,
+};
+
+use packer::Packer;
+use texture::{
+    Pixel,
+    Texture,
 };
 
 struct Skyline {
@@ -14,18 +19,31 @@ struct Skyline {
     pub w: u32,
 }
 
-pub struct SkylinePacker<B: Buffer2d> {
-    buf: B,
-    width: u32,
-    height: u32,
+pub struct SkylinePacker<P: Pixel> {
+    config: TexturePackerConfig,
+
+    // the skylines are sorted by their `x` position
     skylines: Vec<Skyline>,
-    margin: u32,
 }
 
-impl<B: Buffer2d> SkylinePacker<B> {
+impl<P: Pixel> SkylinePacker<P> {
+    pub fn new(config: TexturePackerConfig) -> SkylinePacker<P> {
+        let mut skylines = Vec::new();
+        skylines.push(Skyline {
+            x: 0,
+            y: 0,
+            w: config.max_width,
+        });
+
+        SkylinePacker {
+            config: config,
+            skylines: skylines,
+        }
+    }
+
     fn can_put(&self, i: usize, w: u32, h: u32) -> Option<u32> {
         let x = self.skylines[i].x;
-        if x + w > self.width {
+        if x + w > self.config.max_width {
             return None;
         }
         let mut width_left = w;
@@ -33,10 +51,10 @@ impl<B: Buffer2d> SkylinePacker<B> {
         let mut y = self.skylines[i].y;
         loop {
             y = max(y, self.skylines[i].y);
-            if y + h > self.height {
+            if y + h > self.config.max_height {
                 return None;
             }
-            if self.skylines[i].w > width_left {
+            if self.skylines[i].w >= width_left {
                 return Some(y);
             }
             width_left -= self.skylines[i].w;
@@ -52,25 +70,22 @@ impl<B: Buffer2d> SkylinePacker<B> {
         let mut rect = Rect::new(0, 0, 0, 0);
 
         // keep the min_height as small as possible
-        for i in range(0, self.skylines.len()) {
-            match self.can_put(i, w, h) {
-                Some(y) => {
-                    if y + h < min_height ||
-                       (y + h == min_height && self.skylines[i].w < min_width) {
-                        min_height = y + h;
-                        min_width = self.skylines[i].w;
-                        index = Some(i);
-                        rect.x = self.skylines[i].x;
-                        rect.y = y;
-                        rect.w = w;
-                        rect.h = h;
-                    }
-                },
-                _ => {},
+        for i in 0..self.skylines.len() {
+            if let Some(y) = self.can_put(i, w, h) {
+                if y + h < min_height ||
+                   (y + h == min_height && self.skylines[i].w < min_width) {
+                    min_height = y + h;
+                    min_width = self.skylines[i].w;
+                    index = Some(i);
+                    rect.x = self.skylines[i].x;
+                    rect.y = y;
+                    rect.w = w;
+                    rect.h = h;
+                }
             }
 
-            match self.can_put(i, h, w) {
-                Some(y) => {
+            if self.config.allow_rotation {
+                if let Some(y) = self.can_put(i, h, w) {
                     if y + w < min_height ||
                        (y + w == min_height && self.skylines[i].w < min_width) {
                         min_height = y + w;
@@ -81,13 +96,12 @@ impl<B: Buffer2d> SkylinePacker<B> {
                         rect.w = h;
                         rect.h = w;
                     }
-                },
-                _ => {},
+                }
             }
         }
 
-        if index.is_some() {
-            Some((index.unwrap(), rect))
+        if let Some(index) = index {
+            Some((index, rect))
         } else {
             None
         }
@@ -100,8 +114,8 @@ impl<B: Buffer2d> SkylinePacker<B> {
             w: rect.w,
         };
 
-        assert!(skyline.x + skyline.w <= self.width);
-        assert!(skyline.y <= self.height);
+        assert!(skyline.x + skyline.w <= self.config.max_width);
+        assert!(skyline.y <= self.config.max_height);
 
         self.skylines.insert(index, skyline);
 
@@ -137,63 +151,39 @@ impl<B: Buffer2d> SkylinePacker<B> {
     }
 }
 
-impl<B: Buffer2d> Packer for SkylinePacker<B> {
-    type Buffer = B;
+impl<P: Pixel> Packer for SkylinePacker<P> {
+    type Pixel = P;
 
-    fn new(buf: B) -> SkylinePacker<B> {
-        let (width, height) = buf.dimensions();
-        let mut skylines = Vec::new();
-        skylines.push(Skyline {
-            x: 0,
-            y: 0,
-            w: width,
-        });
+    fn pack(&mut self, key: String, texture: &Texture<Pixel=P>) -> Option<Frame> {
+        let mut width = texture.width();
+        let mut height = texture.height();
 
-        SkylinePacker {
-            buf: buf,
-            width: width,
-            height: height,
-            skylines: skylines,
-            margin: 0,
+        width += self.config.texture_padding;
+        height += self.config.texture_padding;
+
+        if let Some((i, mut rect)) = self.find_skyline(width, height) {
+            self.split(i, &rect);
+            self.merge();
+
+            let rotated = width != rect.w;
+
+            rect.w -= self.config.texture_padding;
+            rect.h -= self.config.texture_padding;
+
+            Some(Frame {
+                key: key,
+                frame: rect,
+                rotated: rotated,
+                trimmed: false,
+                source: Rect {
+                    x: 0,
+                    y: 0,
+                    w: texture.width(),
+                    h: texture.height(),
+                },
+            })
+        } else {
+            None
         }
-    }
-
-    fn pack<O: Buffer2d<Pixel=B::Pixel>>(&mut self, buf: &O) -> Option<Rect> {
-        let (mut width, mut height) = buf.dimensions();
-        width += self.margin;
-        height += self.margin;
-
-        match self.find_skyline(width, height) {
-            Some((i, mut rect)) => {
-                if width == rect.w {
-                    self.buf.patch(rect.x, rect.y, buf);
-                } else {
-                    self.buf.patch_rotated(rect.x, rect.y, buf);
-                }
-
-                self.split(i, &rect);
-                self.merge();
-
-                rect.w -= self.margin;
-                rect.h -= self.margin;
-                Some(rect)
-            },
-            _ => {
-                None
-            },
-        }
-    }
-
-    fn buf(&self) -> &B {
-        &self.buf
-    }
-
-    fn into_buf(self) -> B {
-        self.buf
-    }
-
-    fn set_margin(&mut self, val: u32) {
-        self.margin = val;
     }
 }
-

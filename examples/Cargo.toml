@@ -11,7 +11,10 @@ name = "packer-test"
 
 path = "./packer-test.rs"
 
-[dependencies.texture-packer]
+[dependencies.texture_packer]
 
 path = "../"
 
+[dependencies.image]
+
+git = "https://github.com/PistonDevelopers/image"

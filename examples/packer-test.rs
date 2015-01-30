@@ -1,47 +1,48 @@
-#![allow(unstable)]
+#![feature(collections, core, path, io)]
 
 extern crate image;
 extern crate texture_packer;
 
-use std::io::File;
+use std::old_io::File;
 
+use texture_packer::texture::Texture;
 use texture_packer::{
-    Packer,
-    ShelfPacker,
-    GuillotinePacker,
-    MaxrectPacker,
-    SkylinePacker,
+    TexturePacker,
+    TexturePackerConfig,
+};
+use texture_packer::importer::{
+    ImageImporter,
+};
+use texture_packer::exporter::{
+    ImageExporter,
 };
 
-use image::{
-    ImageBuffer,
-    DynamicImage
-};
-
-static OUTPUT_IMAGE_WIDTH: u32 = 400;
-static OUTPUT_IMAGE_HEIGHT: u32 = 400;
-
-fn pack<P: Packer<Buffer=DynamicImage>>(output_filename: &str) {
-    let buf = DynamicImage::ImageRgba8(ImageBuffer::new(OUTPUT_IMAGE_WIDTH, OUTPUT_IMAGE_HEIGHT));
-    let mut packer: P = Packer::new(buf);
-
-    for i in range(1u32, 11) {
-        let mut filename = "./assets/".to_string();
-        filename.push_str(format!("{}.png", i).as_slice());
-        let image = image::open(&Path::new(filename)).unwrap();
-
-        packer.set_margin(1);
-        packer.pack(&image);
-    }
-
-    let fout = File::create(&Path::new(output_filename)).unwrap();
-    let _ = packer.buf().save(fout, image::PNG);
-}
+static MAX_IMAGE_WIDTH: u32 = 400;
+static MAX_IMAGE_HEIGHT: u32 = 400;
 
 fn main() {
-    pack::<ShelfPacker<DynamicImage>>("shelf-packer-output.png");
-    pack::<MaxrectPacker<DynamicImage>>("maxrect-packer-output.png");
-    pack::<SkylinePacker<DynamicImage>>("skyline-packer-output.png");
-    pack::<GuillotinePacker<DynamicImage>>("guillotine-packer-output.png");
+    let mut config = TexturePackerConfig::default();
+    config.max_width = MAX_IMAGE_WIDTH;
+    config.max_height = MAX_IMAGE_HEIGHT;
+    config.allow_rotation = false;
+    config.texture_outlines = true;
+    config.border_padding = 2;
+
+    let mut texture_packer = TexturePacker::new(config);
+
+    for i in 1..11 {
+        let mut path = "./assets/".to_string();
+        let filename = format!("{}.png", i);
+        path.push_str(filename.as_slice());
+        let texture = ImageImporter::import_from_file(&Path::new(path)).unwrap();
+
+        texture_packer.pack(filename.clone(), Box::new(texture));
+    }
+
+    let image = ImageExporter::export(&texture_packer).unwrap();
+    let output_filename = "skyline-packer-output.png";
+    let fout = File::create(&Path::new(output_filename)).unwrap();
+    println!("{} x {}", texture_packer.width(), texture_packer.height());
+    let _ = image.save(fout, image::PNG);
 }
 
