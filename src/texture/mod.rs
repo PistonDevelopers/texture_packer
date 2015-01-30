@@ -1,4 +1,5 @@
 pub use self::memory_rgba8_texture::MemoryRGBA8Texture;
+use std::ops::{Deref, DerefMut};
 
 pub mod memory_rgba8_texture;
 pub mod image_texture;
@@ -22,4 +23,24 @@ pub trait Pixel: Sized {
     fn is_transparent(&self) -> bool;
     fn transparency() -> Option<Self>;
     fn outline() -> Self;
+}
+
+impl <P: Pixel> Texture for Box<Texture<Pixel=P> + 'static> {
+    type Pixel = P;
+
+    fn width(&self) -> u32 {
+        self.deref().width()
+    }
+
+    fn height(&self) -> u32 {
+        self.deref().height()
+    }
+
+    fn get(&self, x: u32, y: u32) -> Option<P> {
+        self.deref().get(x, y)
+    }
+
+    fn set(&mut self, x: u32, y :u32, val: P) {
+        self.deref_mut().set(x, y, val);
+    }
 }
