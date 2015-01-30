@@ -1,4 +1,3 @@
-
 #[derive(Copy, Clone)]
 pub struct Rect {
     pub x: u32,
@@ -33,7 +32,7 @@ impl Rect {
 
     #[inline(always)]
     pub fn bottom(&self) -> u32 {
-        self.y + self.h
+        self.y + self.h - 1
     }
 
     #[inline(always)]
@@ -43,7 +42,7 @@ impl Rect {
 
     #[inline(always)]
     pub fn right(&self) -> u32 {
-        self.x + self.w
+        self.x + self.w - 1
     }
 
     #[inline(always)]
@@ -65,9 +64,20 @@ impl Rect {
         self.bottom() >= other.bottom()
     }
 
+    pub fn contains_point(&self, x: u32, y: u32) -> bool {
+        self.left() <= x &&
+        self.right() >= x &&
+        self.top() <= y &&
+        self.bottom() >= y
+    }
+
+    pub fn is_outline(&self, x: u32, y: u32) -> bool {
+        x == self.left() || x == self.right() || y == self.top() || y == self.bottom()
+    }
+
     pub fn crop(&self, other: &Rect) -> Vec<Rect> {
         if !self.intersects(other) {
-            return vec!(*self);
+            return vec!(self.clone());
         }
 
         let inside_x1 = if other.left() < self.left() {
@@ -131,4 +141,3 @@ impl Rect {
         result
     }
 }
-
