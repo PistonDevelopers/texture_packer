@@ -1,7 +1,5 @@
 #[derive(Copy)]
 pub struct TexturePackerConfig {
-    pub algorithm: TexturePackerAlrogithm,
-
     //
     // layout configuration
     //
@@ -21,8 +19,6 @@ pub struct TexturePackerConfig {
 impl TexturePackerConfig {
     pub fn default() -> TexturePackerConfig {
         TexturePackerConfig {
-            algorithm: TexturePackerAlrogithm::Skyline,
-
             max_width: 1024,
             max_height: 1024,
             allow_rotation: true,
@@ -33,9 +29,4 @@ impl TexturePackerConfig {
             texture_outlines: false,
         }
     }
-}
-
-#[derive(Copy)]
-pub enum TexturePackerAlrogithm {
-    Skyline,
 }

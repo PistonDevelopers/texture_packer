@@ -18,7 +18,7 @@ pub trait Texture {
     }
 }
 
-pub trait Pixel {
+pub trait Pixel: Sized {
     fn is_transparent(&self) -> bool;
     fn transparency() -> Option<Self>;
     fn outline() -> Self;

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use {
-    TexturePackerAlrogithm,
     TexturePackerConfig,
 };
+use super::Cow;
 
 use texture::{
     Pixel,
@@ -16,37 +16,43 @@ use packer::{
     SkylinePacker,
 };
 
-pub struct TexturePacker<'a, P: Pixel> {
-    textures: HashMap<String, Box<Texture<Pixel = P> + 'a>>,
+pub struct TexturePacker<'a, T:  'a, P> {
+    textures: HashMap<String, Cow<'a, T>>,
     frames: HashMap<String, Frame>,
-    packer: Box<Packer<Pixel = P> + 'a>,
+    packer: P,
     config: TexturePackerConfig,
 }
 
-impl<'a, P: Pixel> TexturePacker<'a, P> {
-    pub fn new(config: TexturePackerConfig) -> TexturePacker<'a, P> {
-        let packer = match config.algorithm {
-            TexturePackerAlrogithm::Skyline => {
-                Box::new(SkylinePacker::new(config))
-            }
-        };
-
+impl <'a, Pix: Pixel, T: 'a +  Texture<Pixel=Pix>> TexturePacker<'a, T, SkylinePacker<Pix>> {
+    pub fn new_skyline(config: TexturePackerConfig) -> TexturePacker<'a, T, SkylinePacker<Pix>> {
         TexturePacker {
             textures: HashMap::new(),
             frames: HashMap::new(),
-            packer: packer,
+            packer: SkylinePacker::<Pix>::new(config),
             config: config,
         }
     }
+}
 
-    pub fn pack(&mut self, key: String, texture: Box<Texture<Pixel = P> + 'a>) {
-        if let Some(mut frame) = self.packer.pack(key.clone(), &*texture) {
+impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T:  Texture<Pixel=Pix>> TexturePacker<'a, T, P> {
+    pub fn pack_ref(&mut self, key: String, texture: &'a T) {
+        if let Some(mut frame) = self.packer.pack(key.clone(), texture) {
             frame.frame.x += self.config.border_padding;
             frame.frame.y += self.config.border_padding;
             self.frames.insert(key.clone(), frame);
         }
 
-        self.textures.insert(key, texture);
+        self.textures.insert(key, Cow::Borrowed(texture));
+    }
+
+    pub fn pack_own(&mut self, key: String, texture: T) {
+        if let Some(mut frame) = self.packer.pack(key.clone(), &texture) {
+            frame.frame.x += self.config.border_padding;
+            frame.frame.y += self.config.border_padding;
+            self.frames.insert(key.clone(), frame);
+        }
+
+        self.textures.insert(key, Cow::Owned(texture));
     }
 
     pub fn get_frames(&self) -> HashMap<String, Frame> {
@@ -71,8 +77,9 @@ impl<'a, P: Pixel> TexturePacker<'a, P> {
     }
 }
 
-impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
-    type Pixel = P;
+impl<'a, Pix, P, T> Texture for  TexturePacker<'a, T, P>
+where Pix: Pixel, P: Packer<Pixel=Pix>, T:  Texture<Pixel=Pix> {
+    type Pixel = Pix;
 
     fn width(&self) -> u32 {
         let mut right = 0;
@@ -98,11 +105,11 @@ impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
         bottom + 1 + self.config.border_padding
     }
 
-    fn get(&self, x: u32, y: u32) -> Option<P> {
+    fn get(&self, x: u32, y: u32) -> Option<Pix> {
         if let Some(frame) = self.get_frame_at(x, y) {
             if let Some(texture) = self.textures.get(&frame.key) {
                 if self.config.texture_outlines && frame.frame.is_outline(x, y) {
-                    return Some(<P as Pixel>::outline());
+                    return Some(<Pix as Pixel>::outline());
                 }
 
                 let x = x - frame.frame.x;
@@ -119,7 +126,7 @@ impl<'a, P: Pixel> Texture for TexturePacker<'a, P> {
         None
     }
 
-    fn set(&mut self, _x: u32, _y: u32, _val: P) {
+    fn set(&mut self, _x: u32, _y: u32, _val: Pix) {
         panic!("Can't set pixel directly");
     }
 }

@@ -28,7 +28,7 @@ fn main() {
     config.texture_outlines = true;
     config.border_padding = 2;
 
-    let mut texture_packer = TexturePacker::new(config);
+    let mut texture_packer = TexturePacker::new_skyline(config);
 
     for i in 1..11 {
         let mut path = "./assets/".to_string();
@@ -36,7 +36,7 @@ fn main() {
         path.push_str(filename.as_slice());
         let texture = ImageImporter::import_from_file(&Path::new(path)).unwrap();
 
-        texture_packer.pack(filename.clone(), Box::new(texture));
+        texture_packer.pack_own(filename.clone(), texture);
     }
 
     let image = ImageExporter::export(&texture_packer).unwrap();
