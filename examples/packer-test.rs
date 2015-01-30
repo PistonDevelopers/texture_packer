@@ -31,7 +31,7 @@ fn main() {
     let mut texture_packer = TexturePacker::new_skyline(config);
 
     for i in 1..11 {
-        let mut path = "./assets/".to_string();
+        let mut path = "./examples/assets/".to_string();
         let filename = format!("{}.png", i);
         path.push_str(filename.as_slice());
         let texture = ImageImporter::import_from_file(&Path::new(path)).unwrap();
@@ -40,7 +40,7 @@ fn main() {
     }
 
     let image = ImageExporter::export(&texture_packer).unwrap();
-    let output_filename = "skyline-packer-output.png";
+    let output_filename = "examples/output/skyline-packer-output.png";
     let fout = File::create(&Path::new(output_filename)).unwrap();
     println!("{} x {}", texture_packer.width(), texture_packer.height());
     let _ = image.save(fout, image::PNG);
