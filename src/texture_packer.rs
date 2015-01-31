@@ -3,11 +3,13 @@ use std::collections::HashMap;
 use {
     TexturePackerConfig,
 };
-use super::Cow;
+
+use rect::Rect;
 
 use texture::{
     Pixel,
     Texture,
+    SubTexture,
 };
 
 use frame::Frame;
@@ -17,7 +19,7 @@ use packer::{
 };
 
 pub struct TexturePacker<'a, T: 'a, P> {
-    textures: HashMap<String, Cow<'a, T>>,
+    textures: HashMap<String, SubTexture<'a, T>>,
     frames: HashMap<String, Frame>,
     packer: P,
     config: TexturePackerConfig,
@@ -36,23 +38,47 @@ impl <'a, Pix: Pixel, T: 'a +  Texture<Pixel=Pix>> TexturePacker<'a, T, SkylineP
 
 impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Texture<Pixel=Pix>> TexturePacker<'a, T, P> {
     pub fn pack_ref(&mut self, key: String, texture: &'a T) {
-        if let Some(mut frame) = self.packer.pack(key.clone(), texture) {
-            frame.frame.x += self.config.border_padding;
-            frame.frame.y += self.config.border_padding;
-            self.frames.insert(key.clone(), frame);
-        }
+        let (w, h) = (texture.width(), texture.height());
+        let source = if self.config.trim {
+            trim_texture(texture)
+        } else {
+            Rect::new(0, 0, w, h)
+        };
 
-        self.textures.insert(key, Cow::Borrowed(texture));
-    }
-
-    pub fn pack_own(&mut self, key: String, texture: T) {
+        let texture = SubTexture::from_ref(texture, source);
         if let Some(mut frame) = self.packer.pack(key.clone(), &texture) {
             frame.frame.x += self.config.border_padding;
             frame.frame.y += self.config.border_padding;
+            frame.trimmed = self.config.trim;
+            frame.source = source;
+            frame.source.w = w;
+            frame.source.h = h;
             self.frames.insert(key.clone(), frame);
         }
 
-        self.textures.insert(key, Cow::Owned(texture));
+        self.textures.insert(key, texture);
+    }
+
+    pub fn pack_own(&mut self, key: String, texture: T) {
+        let (w, h) = (texture.width(), texture.height());
+        let source = if self.config.trim {
+            trim_texture(&texture)
+        } else {
+            Rect::new(0, 0, w, h)
+        };
+
+        let texture = SubTexture::new(texture, source);
+        if let Some(mut frame) = self.packer.pack(key.clone(), &texture) {
+            frame.frame.x += self.config.border_padding;
+            frame.frame.y += self.config.border_padding;
+            frame.trimmed = self.config.trim;
+            frame.source = source;
+            frame.source.w = w;
+            frame.source.h = h;
+            self.frames.insert(key.clone(), frame);
+        }
+
+        self.textures.insert(key, texture);
     }
 
     pub fn get_frames(&self) -> &HashMap<String, Frame> {
@@ -145,4 +171,45 @@ where Pix: Pixel, P: Packer<Pixel=Pix>, T:  Texture<Pixel=Pix> {
     fn set(&mut self, _x: u32, _y: u32, _val: Pix) {
         panic!("Can't set pixel directly");
     }
+}
+
+fn trim_texture<T: Texture>(texture: &T) -> Rect {
+    let mut x1 = 0;
+    for x in 0..texture.width() {
+        if texture.is_column_transparent(x) {
+            x1 = x + 1;
+        } else {
+            break;
+        }
+    }
+
+    let mut x2 = texture.width() - 1;
+    for x in 0..texture.width() {
+        let x = texture.width() - x - 1;
+        if texture.is_column_transparent(x) {
+            x2 = x - 1;
+        } else {
+            break;
+        }
+    }
+
+    let mut y1 = 0;
+    for y in 0..texture.height() {
+        if texture.is_row_transparent(y) {
+            y1 = y + 1;
+        } else {
+            break;
+        }
+    }
+
+    let mut y2 = texture.height() - 1;
+    for y in 0..texture.height() {
+        let y = texture.height() - y - 1;
+        if texture.is_row_transparent(y) {
+            y2 = y - 1;
+        } else {
+            break;
+        }
+    }
+    Rect::new_with_points(x1, y1, x2, y2)
 }

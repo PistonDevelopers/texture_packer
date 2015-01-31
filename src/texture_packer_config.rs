@@ -13,6 +13,8 @@ pub struct TexturePackerConfig {
     pub border_padding: u32,
     pub texture_padding: u32,
 
+    pub trim: bool,
+
     pub texture_outlines: bool,
 }
 
@@ -25,6 +27,8 @@ impl TexturePackerConfig {
 
             border_padding: 0,
             texture_padding: 2,
+
+            trim: true,
 
             texture_outlines: false,
         }
