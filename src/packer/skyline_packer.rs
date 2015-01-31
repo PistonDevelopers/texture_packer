@@ -19,8 +19,21 @@ struct Skyline {
     pub w: u32,
 }
 
+impl Skyline {
+    #[inline(always)]
+    pub fn left(&self) -> u32 {
+        self.x
+    }
+
+    #[inline(always)]
+    pub fn right(&self) -> u32 {
+        self.x + self.w - 1
+    }
+}
+
 pub struct SkylinePacker<P: Pixel> {
     config: TexturePackerConfig,
+    border: Rect,
 
     // the skylines are sorted by their `x` position
     skylines: Vec<Skyline>,
@@ -37,25 +50,23 @@ impl<P: Pixel> SkylinePacker<P> {
 
         SkylinePacker {
             config: config,
+            border: Rect::new(0, 0, config.max_width, config.max_height),
             skylines: skylines,
         }
     }
 
-    fn can_put(&self, i: usize, w: u32, h: u32) -> Option<u32> {
-        let x = self.skylines[i].x;
-        if x + w > self.config.max_width {
-            return None;
-        }
-        let mut width_left = w;
-        let mut i = i;
-        let mut y = self.skylines[i].y;
+    // return `rect` if rectangle (w, h) can fit the skyline started at `i`
+    fn can_put(&self, mut i: usize, w: u32, h: u32) -> Option<Rect> {
+        let mut rect = Rect::new(self.skylines[i].x, 0, w, h);
+        let mut width_left = rect.w;
         loop {
-            y = max(y, self.skylines[i].y);
-            if y + h > self.config.max_height {
+            rect.y = max(rect.y, self.skylines[i].y);
+            // the source rect is too large
+            if !self.border.contains(&rect) {
                 return None;
             }
             if self.skylines[i].w >= width_left {
-                return Some(y);
+                return Some(rect);
             }
             width_left -= self.skylines[i].w;
             i += 1;
@@ -64,37 +75,31 @@ impl<P: Pixel> SkylinePacker<P> {
     }
 
     fn find_skyline(&self, w: u32, h: u32) -> Option<(usize, Rect)> {
-        let mut min_height = std::u32::MAX;
-        let mut min_width = std::u32::MAX;
+        let mut bottom = std::u32::MAX;
+        let mut width = std::u32::MAX;
         let mut index = None;
         let mut rect = Rect::new(0, 0, 0, 0);
 
-        // keep the min_height as small as possible
+        // keep the `bottom` and `width` as small as possible
         for i in 0..self.skylines.len() {
-            if let Some(y) = self.can_put(i, w, h) {
-                if y + h < min_height ||
-                   (y + h == min_height && self.skylines[i].w < min_width) {
-                    min_height = y + h;
-                    min_width = self.skylines[i].w;
+            if let Some(r) = self.can_put(i, w, h) {
+                if r.bottom() < bottom ||
+                   (r.bottom() == bottom && self.skylines[i].w < width) {
+                    bottom = r.bottom();
+                    width = self.skylines[i].w;
                     index = Some(i);
-                    rect.x = self.skylines[i].x;
-                    rect.y = y;
-                    rect.w = w;
-                    rect.h = h;
+                    rect = r;
                 }
             }
 
             if self.config.allow_rotation {
-                if let Some(y) = self.can_put(i, h, w) {
-                    if y + w < min_height ||
-                       (y + w == min_height && self.skylines[i].w < min_width) {
-                        min_height = y + w;
-                        min_width = self.skylines[i].w;
+                if let Some(r) = self.can_put(i, h, w) {
+                    if r.bottom() < bottom ||
+                       (r.bottom() == bottom && self.skylines[i].w < width) {
+                        bottom = r.bottom();
+                        width = self.skylines[i].w;
                         index = Some(i);
-                        rect.x = self.skylines[i].x;
-                        rect.y = y;
-                        rect.w = h;
-                        rect.h = w;
+                        rect = r;
                     }
                 }
             }
@@ -109,22 +114,22 @@ impl<P: Pixel> SkylinePacker<P> {
 
     fn split(&mut self, index: usize, rect: &Rect) {
         let skyline = Skyline {
-            x: rect.x,
-            y: rect.y + rect.h,
+            x: rect.left(),
+            y: rect.bottom() + 1,
             w: rect.w,
         };
 
-        assert!(skyline.x + skyline.w <= self.config.max_width);
-        assert!(skyline.y <= self.config.max_height);
+        assert!(skyline.right() <= self.border.right());
+        assert!(skyline.y <= self.border.bottom());
 
         self.skylines.insert(index, skyline);
 
         let i = index + 1;
         while i < self.skylines.len() {
-            assert!(self.skylines[i-1].x <= self.skylines[i].x);
+            assert!(self.skylines[i-1].left() <= self.skylines[i].left());
 
-            if self.skylines[i].x < self.skylines[i-1].x + self.skylines[i-1].w {
-                let shrink = self.skylines[i-1].x + self.skylines[i-1].w - self.skylines[i].x;
+            if self.skylines[i].left() <= self.skylines[i - 1].right() {
+                let shrink = self.skylines[i - 1].right() - self.skylines[i].left() + 1;
                 if self.skylines[i].w <= shrink {
                     self.skylines.remove(i);
                 } else {
@@ -141,8 +146,8 @@ impl<P: Pixel> SkylinePacker<P> {
     fn merge(&mut self) {
         let mut i = 1;
         while i < self.skylines.len() {
-            if self.skylines[i-1].y == self.skylines[i].y {
-                self.skylines[i-1].w += self.skylines[i].w;
+            if self.skylines[i - 1].y == self.skylines[i].y {
+                self.skylines[i - 1].w += self.skylines[i].w;
                 self.skylines.remove(i);
                 i -= 1;
             }
@@ -188,6 +193,6 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
     }
 
     fn can_pack(&self, texture: &Texture<Pixel=P>) -> bool {
-        self.find_skyline(texture.width(), texture.height()).is_some()
+        self.find_skyline(texture.width() + self.config.texture_padding, texture.height() + self.config.texture_padding).is_some()
     }
 }
