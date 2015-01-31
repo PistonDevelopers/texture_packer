@@ -20,8 +20,8 @@ impl Rect {
         Rect {
             x: x1,
             y: y1,
-            w: x2 - x1,
-            h: y2 - y1,
+            w: x2 - x1 + 1,
+            h: y2 - y1 + 1,
         }
     }
 
