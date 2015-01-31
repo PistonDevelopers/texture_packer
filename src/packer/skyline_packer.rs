@@ -186,4 +186,8 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
             None
         }
     }
+
+    fn can_pack(&self, texture: &Texture<Pixel=P>) -> bool {
+        self.find_skyline(texture.width(), texture.height()).is_some()
+    }
 }
