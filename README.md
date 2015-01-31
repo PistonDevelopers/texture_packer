@@ -3,6 +3,8 @@
 
 A library for texture packing
 
+To test, run `cargo run --example packer-test` from the project directory.
+
 [How to contribute](https://github.com/PistonDevelopers/piston/blob/master/CONTRIBUTING.md)
 
 # screenshots
