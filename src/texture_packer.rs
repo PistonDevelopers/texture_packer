@@ -16,7 +16,7 @@ use packer::{
     SkylinePacker,
 };
 
-pub struct TexturePacker<'a, T:  'a, P> {
+pub struct TexturePacker<'a, T: 'a, P> {
     textures: HashMap<String, Cow<'a, T>>,
     frames: HashMap<String, Frame>,
     packer: P,
@@ -34,7 +34,7 @@ impl <'a, Pix: Pixel, T: 'a +  Texture<Pixel=Pix>> TexturePacker<'a, T, SkylineP
     }
 }
 
-impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T:  Texture<Pixel=Pix>> TexturePacker<'a, T, P> {
+impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Texture<Pixel=Pix>> TexturePacker<'a, T, P> {
     pub fn pack_ref(&mut self, key: String, texture: &'a T) {
         if let Some(mut frame) = self.packer.pack(key.clone(), texture) {
             frame.frame.x += self.config.border_padding;
@@ -55,13 +55,13 @@ impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T:  Texture<Pixel=Pix>> TexturePacker
         self.textures.insert(key, Cow::Owned(texture));
     }
 
-    pub fn get_frames(&self) -> HashMap<String, Frame> {
-        self.frames.clone()
+    pub fn get_frames(&self) -> &HashMap<String, Frame> {
+        &self.frames
     }
 
-    pub fn get_frame(&self, key: &str) -> Option<Frame> {
+    pub fn get_frame(&self, key: &str) -> Option<&Frame> {
         if let Some(frame) = self.frames.get(key) {
-            Some(frame.clone())
+            Some(frame)
         } else {
             None
         }
@@ -82,27 +82,43 @@ where Pix: Pixel, P: Packer<Pixel=Pix>, T:  Texture<Pixel=Pix> {
     type Pixel = Pix;
 
     fn width(&self) -> u32 {
-        let mut right = 0;
+        let mut right = None;
 
         for (_, frame) in self.frames.iter() {
-            if frame.frame.right() > right {
-                right = frame.frame.right();
+            if let Some(r) = right {
+                if frame.frame.right() > r {
+                    right = Some(frame.frame.right());
+                }
+            } else {
+                right = Some(frame.frame.right());
             }
         }
 
-        right + 1 + self.config.border_padding
+        if let Some(right) = right {
+            right + 1 + self.config.border_padding
+        } else {
+            0
+        }
     }
 
     fn height(&self) -> u32 {
-        let mut bottom = 0;
+        let mut bottom = None;
 
         for (_, frame) in self.frames.iter() {
-            if frame.frame.bottom() > bottom {
-                bottom = frame.frame.bottom();
+            if let Some(b) = bottom {
+                if frame.frame.bottom() > b {
+                    bottom = Some(frame.frame.bottom());
+                }
+            } else {
+                bottom = Some(frame.frame.bottom());
             }
         }
 
-        bottom + 1 + self.config.border_padding
+        if let Some(bottom) = bottom {
+            bottom + 1 + self.config.border_padding
+        } else {
+            0
+        }
     }
 
     fn get(&self, x: u32, y: u32) -> Option<Pix> {
