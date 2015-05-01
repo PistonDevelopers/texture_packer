@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use importer::{
     Importer,
     ImportResult,
@@ -8,7 +10,7 @@ use image::{
     DynamicImage,
 };
 
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct ImageImporter;
 
 impl ImageImporter {

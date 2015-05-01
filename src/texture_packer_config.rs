@@ -1,4 +1,4 @@
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct TexturePackerConfig {
     //
     // layout configuration
