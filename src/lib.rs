@@ -1,4 +1,3 @@
-#![feature(collections)]
 extern crate image;
 
 use std::ops::Deref;

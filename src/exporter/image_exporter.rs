@@ -3,6 +3,7 @@ use exporter::{
     ExportResult,
 };
 
+use std::marker::PhantomData;
 use image::{
     DynamicImage,
     ImageBuffer,
@@ -11,8 +12,8 @@ use image::{
 
 use texture::Texture;
 
-#[derive(Copy)]
-pub struct ImageExporter<T>;
+#[derive(Copy, Clone)]
+pub struct ImageExporter<T>(PhantomData<T>);
 
 impl<T: Texture<Pixel=Rgba<u8>>> ImageExporter<T> {
     pub fn export(texture: &T) -> ExportResult<DynamicImage> {
