@@ -18,14 +18,14 @@ use packer::{
     SkylinePacker,
 };
 
-pub struct TexturePacker<'a, T: 'a, P> {
+pub struct TexturePacker<'a, T: 'a + Clone, P> {
     textures: HashMap<String, SubTexture<'a, T>>,
     frames: HashMap<String, Frame>,
     packer: P,
     config: TexturePackerConfig,
 }
 
-impl <'a, Pix: Pixel, T: 'a +  Texture<Pixel=Pix>> TexturePacker<'a, T, SkylinePacker<Pix>> {
+impl <'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel=Pix>> TexturePacker<'a, T, SkylinePacker<Pix>> {
     pub fn new_skyline(config: TexturePackerConfig) -> TexturePacker<'a, T, SkylinePacker<Pix>> {
         TexturePacker {
             textures: HashMap::new(),
@@ -36,7 +36,7 @@ impl <'a, Pix: Pixel, T: 'a +  Texture<Pixel=Pix>> TexturePacker<'a, T, SkylineP
     }
 }
 
-impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Texture<Pixel=Pix>> TexturePacker<'a, T, P> {
+impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Clone + Texture<Pixel=Pix>> TexturePacker<'a, T, P> {
     pub fn pack_ref(&mut self, key: String, texture: &'a T) {
         let (w, h) = (texture.width(), texture.height());
         let source = if self.config.trim {
@@ -103,7 +103,7 @@ impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Texture<Pixel=Pix>> TexturePacker<
     }
 }
 
-impl<'a, Pix, P, T> Texture for  TexturePacker<'a, T, P>
+impl<'a, Pix, P, T: Clone> Texture for  TexturePacker<'a, T, P>
 where Pix: Pixel, P: Packer<Pixel=Pix>, T:  Texture<Pixel=Pix> {
     type Pixel = Pix;
 
