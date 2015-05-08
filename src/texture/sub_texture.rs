@@ -1,15 +1,15 @@
-use Cow;
+use std::borrow::Cow;
 
 use rect::Rect;
 
 use super::Texture;
 
-pub struct SubTexture<'a, T: 'a> {
+pub struct SubTexture<'a, T: 'a + Clone> {
     texture: Cow<'a, T>,
     source: Rect,
 }
 
-impl<'a, T: Texture> SubTexture<'a, T> {
+impl<'a, T: Texture + Clone> SubTexture<'a, T> {
     pub fn new(texture: T, source: Rect) -> SubTexture<'a, T> {
         SubTexture {
             texture: Cow::Owned(texture),
@@ -26,7 +26,7 @@ impl<'a, T: Texture> SubTexture<'a, T> {
 
 }
 
-impl<'a, T: Texture> Texture for SubTexture<'a, T> {
+impl<'a, T: Texture + Clone> Texture for SubTexture<'a, T> {
     type Pixel = T::Pixel;
 
     fn width(&self) -> u32 {
