@@ -1,3 +1,5 @@
+use std::default::Default;
+
 #[derive(Copy, Clone)]
 pub struct TexturePackerConfig {
     //
@@ -18,8 +20,8 @@ pub struct TexturePackerConfig {
     pub texture_outlines: bool,
 }
 
-impl TexturePackerConfig {
-    pub fn default() -> TexturePackerConfig {
+impl Default for TexturePackerConfig {
+    fn default() -> TexturePackerConfig {
         TexturePackerConfig {
             max_width: 1024,
             max_height: 1024,
