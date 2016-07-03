@@ -1,12 +1,14 @@
 texture-packer [![Build Status]][Travis CI]
 ========
 A texture packing library using the skyline heuristic. To test the sample code,
-run the code below from the project directory. [How to contribute]
+run the code below from the project directory. **[Documentation]**
 
 ```bash
 # Be sure you're running this code at the root of the project directory!
 cargo run --example packer-test
 ```
+
+[How to contribute]
 
 ![Skyline packer](./examples/output/skyline-packer-output.png)
 
@@ -23,4 +25,5 @@ cargo run --example packer-test
 
 [Build Status]: https://travis-ci.org/PistonDevelopers/texture_packer.svg?branch=master
 [Travis CI]: https://travis-ci.org/PistonDevelopers/texture_packer
+[Documentation]: http://docs.piston.rs/texture_packer
 [How to contribute]: https://github.com/PistonDevelopers/piston/blob/master/CONTRIBUTING.md
