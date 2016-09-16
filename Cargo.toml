@@ -10,5 +10,17 @@ repository = "https://github.com/PistonDevelopers/texture_packer.git"
 homepage = "https://github.com/PistonDevelopers/texture_packer"
 documentation = "http://docs.piston.rs/texture_packer"
 
+[features]
+gif_codec = ["image/gif_codec"]
+ico = ["image/ico"]
+jpeg = ["image/jpeg"]
+png_codec = ["image/png_codec"]
+ppm = ["image/ppm"]
+tga = ["image/tga"]
+tiff = ["image/tiff"]
+webp = ["image/webp"]
+bmp = ["image/bmp"]
+hdr = ["image/hdr"]
+
 [dependencies]
-image = "0.10.0"
+image = { version = "0.10.0", default-features = false }
