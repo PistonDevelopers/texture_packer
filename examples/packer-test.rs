@@ -49,5 +49,5 @@ fn main() {
     //
     let exporter = ImageExporter::export(&packer).unwrap();
     let mut file = File::create("examples/output/skyline-packer-output.png").unwrap();
-    exporter.save(&mut file, image::PNG).unwrap();
+    exporter.write_to(&mut file, image::PNG).unwrap();
 }
