@@ -1,6 +1,6 @@
 use std::default::Default;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct TexturePackerConfig {
     //
     // layout configuration

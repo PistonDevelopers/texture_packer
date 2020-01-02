@@ -1,6 +1,5 @@
-use texture::Texture;
-
 pub use self::image_importer::ImageImporter;
+use crate::texture::Texture;
 
 mod image_importer;
 

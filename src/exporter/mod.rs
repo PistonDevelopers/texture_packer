@@ -1,6 +1,5 @@
-use texture::Texture;
-
 pub use self::image_exporter::ImageExporter;
+use crate::texture::Texture;
 
 mod image_exporter;
 

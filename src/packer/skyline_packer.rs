@@ -1,18 +1,11 @@
-use std;
-use std::cmp::max;
-use std::marker::PhantomData;
-
-use {
-    TexturePackerConfig,
-    Rect,
-    Frame,
+use crate::{
+    frame::Frame,
+    packer::Packer,
+    rect::Rect,
+    texture::{Pixel, Texture},
+    texture_packer_config::TexturePackerConfig,
 };
-
-use packer::Packer;
-use texture::{
-    Pixel,
-    Texture,
-};
+use std::{cmp::max, marker::PhantomData};
 
 struct Skyline {
     pub x: u32,
@@ -87,8 +80,7 @@ impl<P: Pixel> SkylinePacker<P> {
         // keep the `bottom` and `width` as small as possible
         for i in 0..self.skylines.len() {
             if let Some(r) = self.can_put(i, w, h) {
-                if r.bottom() < bottom ||
-                   (r.bottom() == bottom && self.skylines[i].w < width) {
+                if r.bottom() < bottom || (r.bottom() == bottom && self.skylines[i].w < width) {
                     bottom = r.bottom();
                     width = self.skylines[i].w;
                     index = Some(i);
@@ -98,8 +90,7 @@ impl<P: Pixel> SkylinePacker<P> {
 
             if self.config.allow_rotation {
                 if let Some(r) = self.can_put(i, h, w) {
-                    if r.bottom() < bottom ||
-                       (r.bottom() == bottom && self.skylines[i].w < width) {
+                    if r.bottom() < bottom || (r.bottom() == bottom && self.skylines[i].w < width) {
                         bottom = r.bottom();
                         width = self.skylines[i].w;
                         index = Some(i);
@@ -130,7 +121,7 @@ impl<P: Pixel> SkylinePacker<P> {
 
         let i = index + 1;
         while i < self.skylines.len() {
-            assert!(self.skylines[i-1].left() <= self.skylines[i].left());
+            assert!(self.skylines[i - 1].left() <= self.skylines[i].left());
 
             if self.skylines[i].left() <= self.skylines[i - 1].right() {
                 let shrink = self.skylines[i - 1].right() - self.skylines[i].left() + 1;
@@ -163,7 +154,7 @@ impl<P: Pixel> SkylinePacker<P> {
 impl<P: Pixel> Packer for SkylinePacker<P> {
     type Pixel = P;
 
-    fn pack(&mut self, key: String, texture: &Texture<Pixel=P>) -> Option<Frame> {
+    fn pack(&mut self, key: String, texture: &dyn Texture<Pixel = P>) -> Option<Frame> {
         let mut width = texture.width();
         let mut height = texture.height();
 
@@ -196,7 +187,19 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
         }
     }
 
-    fn can_pack(&self, texture: &Texture<Pixel=P>) -> bool {
-        self.find_skyline(texture.width() + self.config.texture_padding, texture.height() + self.config.texture_padding).is_some()
+    fn can_pack(&self, texture: &dyn Texture<Pixel = P>) -> bool {
+        if let Some((_, rect)) = self.find_skyline(
+            texture.width() + self.config.texture_padding,
+            texture.height() + self.config.texture_padding,
+        ) {
+            let skyline = Skyline {
+                x: rect.left(),
+                y: rect.bottom() + 1,
+                w: rect.w,
+            };
+
+            return skyline.right() <= self.border.right() && skyline.y <= self.border.bottom();
+        }
+        return false;
     }
 }

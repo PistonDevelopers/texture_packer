@@ -1,16 +1,7 @@
-use image;
-use image::{
-    GenericImage,
-    Rgba,
-    Rgb,
-};
+use crate::texture::{Pixel, Texture};
+use image::{GenericImage, Rgb, Rgba};
 
-use texture::{
-    Pixel,
-    Texture,
-};
-
-impl<P: Pixel + image::Pixel, I: GenericImage<Pixel=P>> Texture for I {
+impl<P: Pixel + image::Pixel, I: GenericImage<Pixel = P>> Texture for I {
     type Pixel = I::Pixel;
 
     fn width(&self) -> u32 {

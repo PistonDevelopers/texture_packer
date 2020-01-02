@@ -1,7 +1,4 @@
-use texture::{
-    Pixel,
-    Texture,
-};
+use crate::texture::{Pixel, Texture};
 
 #[derive(Copy, Clone)]
 pub struct RGBA8 {
@@ -17,11 +14,21 @@ impl Pixel for RGBA8 {
     }
 
     fn transparency() -> Option<Self> {
-        Some(RGBA8 { r: 0, g: 0, b: 0, a: 0 })
+        Some(RGBA8 {
+            r: 0,
+            g: 0,
+            b: 0,
+            a: 0,
+        })
     }
 
     fn outline() -> RGBA8 {
-        RGBA8 { r: 255, g: 0, b: 0, a: 255 }
+        RGBA8 {
+            r: 255,
+            g: 0,
+            b: 0,
+            a: 255,
+        }
     }
 }
 

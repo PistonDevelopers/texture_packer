@@ -1,4 +1,4 @@
-use rect::Rect;
+use crate::rect::Rect;
 
 #[derive(Clone, Debug)]
 pub struct Frame {
