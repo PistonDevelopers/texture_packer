@@ -1,17 +1,17 @@
 extern crate image;
 
-pub use rect::Rect;
-pub use frame::Frame;
-pub use texture_packer::TexturePacker;
-pub use texture_packer_config::TexturePackerConfig;
+pub use crate::{
+    frame::Frame, multi_texture_packer::MultiTexturePacker, rect::Rect,
+    texture_packer::TexturePacker, texture_packer_config::TexturePackerConfig,
+};
 
-pub mod texture;
-pub mod importer;
 pub mod exporter;
+pub mod importer;
+pub mod texture;
 
-mod rect;
 mod frame;
+mod multi_texture_packer;
+mod packer;
+mod rect;
 mod texture_packer;
 mod texture_packer_config;
-mod packer;
-

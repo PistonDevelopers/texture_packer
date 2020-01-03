@@ -1,8 +1,5 @@
+use crate::{rect::Rect, texture::Texture};
 use std::borrow::Cow;
-
-use rect::Rect;
-
-use super::Texture;
 
 pub struct SubTexture<'a, T: 'a + Clone> {
     texture: Cow<'a, T>,
@@ -23,7 +20,6 @@ impl<'a, T: Texture + Clone> SubTexture<'a, T> {
             source: source,
         }
     }
-
 }
 
 impl<'a, T: Texture + Clone> Texture for SubTexture<'a, T> {
@@ -53,4 +49,3 @@ impl<'a, T: Texture + Clone> Texture for SubTexture<'a, T> {
         }
     }
 }
-

@@ -1,7 +1,8 @@
 [package]
 name = "texture_packer"
-version = "0.17.0"
+version = "0.18.0"
 authors = ["Coeuvre <coeuvre@gmail.com>"]
+edition = "2018"
 keywords = ["texture", "packer", "piston"]
 description = "A texture packing library using the skyline heuristic"
 license = "MIT"
@@ -11,6 +12,7 @@ homepage = "https://github.com/PistonDevelopers/texture_packer"
 documentation = "http://docs.piston.rs/texture_packer"
 
 [features]
+common = ["gif_codec", "jpeg", "png_codec", "tga", "bmp"]
 gif_codec = ["image/gif_codec"]
 ico = ["image/ico"]
 jpeg = ["image/jpeg"]
@@ -23,4 +25,4 @@ bmp = ["image/bmp"]
 hdr = ["image/hdr"]
 
 [dependencies]
-image = { version = "0.22.1", default-features = false }
+image = { version = "0.22", default-features = false }

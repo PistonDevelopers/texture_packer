@@ -51,24 +51,21 @@ impl Rect {
     }
 
     pub fn intersects(&self, other: &Rect) -> bool {
-        self.left() < other.right() &&
-        self.right() > other.left() &&
-        self.top() < other.bottom() &&
-        self.bottom() > other.top()
+        self.left() < other.right()
+            && self.right() > other.left()
+            && self.top() < other.bottom()
+            && self.bottom() > other.top()
     }
 
     pub fn contains(&self, other: &Rect) -> bool {
-        self.left() <= other.left() &&
-        self.right() >= other.right() &&
-        self.top() <= other.top() &&
-        self.bottom() >= other.bottom()
+        self.left() <= other.left()
+            && self.right() >= other.right()
+            && self.top() <= other.top()
+            && self.bottom() >= other.bottom()
     }
 
     pub fn contains_point(&self, x: u32, y: u32) -> bool {
-        self.left() <= x &&
-        self.right() >= x &&
-        self.top() <= y &&
-        self.bottom() >= y
+        self.left() <= x && self.right() >= x && self.top() <= y && self.bottom() >= y
     }
 
     pub fn is_outline(&self, x: u32, y: u32) -> bool {
@@ -77,7 +74,7 @@ impl Rect {
 
     pub fn crop(&self, other: &Rect) -> Vec<Rect> {
         if !self.intersects(other) {
-            return vec!(self.clone());
+            return vec![self.clone()];
         }
 
         let inside_x1 = if other.left() < self.left() {

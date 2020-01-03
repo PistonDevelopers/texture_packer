@@ -1,27 +1,20 @@
-use exporter::{
-    Exporter,
-    ExportResult,
+use crate::{
+    exporter::{ExportResult, Exporter},
+    image::{DynamicImage, ImageBuffer, Rgba},
+    texture::Texture,
 };
-
 use std::marker::PhantomData;
-use image::{
-    DynamicImage,
-    ImageBuffer,
-    Rgba,
-};
-
-use texture::Texture;
 
 #[derive(Copy, Clone)]
 pub struct ImageExporter<T>(PhantomData<T>);
 
-impl<T: Texture<Pixel=Rgba<u8>>> ImageExporter<T> {
+impl<T: Texture<Pixel = Rgba<u8>>> ImageExporter<T> {
     pub fn export(texture: &T) -> ExportResult<DynamicImage> {
         <Self as Exporter<T>>::export(texture)
     }
 }
 
-impl<T: Texture<Pixel=Rgba<u8>>> Exporter<T> for ImageExporter<T> {
+impl<T: Texture<Pixel = Rgba<u8>>> Exporter<T> for ImageExporter<T> {
     type Output = DynamicImage;
 
     fn export(texture: &T) -> ExportResult<DynamicImage> {
@@ -50,7 +43,9 @@ impl<T: Texture<Pixel=Rgba<u8>>> Exporter<T> for ImageExporter<T> {
             }
         }
 
-        if let Some(image_buffer) = ImageBuffer::<Rgba<u8>, Vec<u8>>::from_raw(width, height, pixels) {
+        if let Some(image_buffer) =
+            ImageBuffer::<Rgba<u8>, Vec<u8>>::from_raw(width, height, pixels)
+        {
             Ok(DynamicImage::ImageRgba8(image_buffer))
         } else {
             Err("Can't export texture".to_string())

@@ -1,14 +1,8 @@
+use crate::{
+    image::{self, DynamicImage},
+    importer::{ImportResult, Importer},
+};
 use std::path::Path;
-
-use importer::{
-    Importer,
-    ImportResult,
-};
-
-use image;
-use image::{
-    DynamicImage,
-};
 
 #[derive(Copy, Clone)]
 pub struct ImageImporter;
@@ -38,7 +32,6 @@ impl<'a> Importer<&'a [u8]> for ImageImporter {
     type Texture = DynamicImage;
 
     fn import(input: &[u8]) -> ImportResult<DynamicImage> {
-
         match image::load_from_memory(input) {
             Ok(image) => Ok(image),
             Err(e) => Err(format!("{}", e)),

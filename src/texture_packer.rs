@@ -1,22 +1,18 @@
+use crate::{
+    frame::Frame,
+    packer::{Packer, SkylinePacker},
+    rect::Rect,
+    texture::{Pixel, SubTexture, Texture},
+    texture_packer_config::TexturePackerConfig,
+};
 use std::collections::HashMap;
 
-use {
-    TexturePackerConfig,
-};
+pub type PackResult<T> = Result<T, PackError>;
 
-use rect::Rect;
-
-use texture::{
-    Pixel,
-    Texture,
-    SubTexture,
-};
-
-use frame::Frame;
-use packer::{
-    Packer,
-    SkylinePacker,
-};
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum PackError {
+    TextureTooLargeToFitIntoAtlas,
+}
 
 pub struct TexturePacker<'a, T: 'a + Clone, P> {
     textures: HashMap<String, SubTexture<'a, T>>,
@@ -25,7 +21,9 @@ pub struct TexturePacker<'a, T: 'a + Clone, P> {
     config: TexturePackerConfig,
 }
 
-impl <'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel=Pix>> TexturePacker<'a, T, SkylinePacker<Pix>> {
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
+    TexturePacker<'a, T, SkylinePacker<Pix>>
+{
     pub fn new_skyline(config: TexturePackerConfig) -> TexturePacker<'a, T, SkylinePacker<Pix>> {
         TexturePacker {
             textures: HashMap::new(),
@@ -36,8 +34,18 @@ impl <'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel=Pix>> TexturePacker<'a, T, S
     }
 }
 
-impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Clone + Texture<Pixel=Pix>> TexturePacker<'a, T, P> {
-    pub fn pack_ref(&mut self, key: String, texture: &'a T) {
+impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
+    TexturePacker<'a, T, P>
+{
+    pub fn can_pack(&self, texture: &'a T) -> bool {
+        self.packer.can_pack(texture)
+    }
+
+    pub fn pack_ref(&mut self, key: String, texture: &'a T) -> PackResult<()> {
+        if !self.packer.can_pack(texture) {
+            return Err(PackError::TextureTooLargeToFitIntoAtlas);
+        }
+
         let (w, h) = (texture.width(), texture.height());
         let source = if self.config.trim {
             trim_texture(texture)
@@ -57,9 +65,14 @@ impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Clone + Texture<Pixel=Pix>> Textur
         }
 
         self.textures.insert(key, texture);
+        Ok(())
     }
 
-    pub fn pack_own(&mut self, key: String, texture: T) {
+    pub fn pack_own(&mut self, key: String, texture: T) -> PackResult<()> {
+        if !self.packer.can_pack(&texture) {
+            return Err(PackError::TextureTooLargeToFitIntoAtlas);
+        }
+
         let (w, h) = (texture.width(), texture.height());
         let source = if self.config.trim {
             trim_texture(&texture)
@@ -79,6 +92,7 @@ impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Clone + Texture<Pixel=Pix>> Textur
         }
 
         self.textures.insert(key, texture);
+        Ok(())
     }
 
     pub fn get_frames(&self) -> &HashMap<String, Frame> {
@@ -103,8 +117,12 @@ impl<'a, Pix: Pixel, P: Packer<Pixel=Pix>, T: Clone + Texture<Pixel=Pix>> Textur
     }
 }
 
-impl<'a, Pix, P, T: Clone> Texture for  TexturePacker<'a, T, P>
-where Pix: Pixel, P: Packer<Pixel=Pix>, T:  Texture<Pixel=Pix> {
+impl<'a, Pix, P, T: Clone> Texture for TexturePacker<'a, T, P>
+where
+    Pix: Pixel,
+    P: Packer<Pixel = Pix>,
+    T: Texture<Pixel = Pix>,
+{
     type Pixel = Pix;
 
     fn width(&self) -> u32 {
