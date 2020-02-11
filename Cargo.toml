@@ -1,6 +1,6 @@
 [package]
 name = "texture_packer"
-version = "0.18.0"
+version = "0.19.0"
 authors = ["Coeuvre <coeuvre@gmail.com>"]
 edition = "2018"
 keywords = ["texture", "packer", "piston"]
@@ -12,11 +12,11 @@ homepage = "https://github.com/PistonDevelopers/texture_packer"
 documentation = "http://docs.piston.rs/texture_packer"
 
 [features]
-common = ["gif_codec", "jpeg", "png_codec", "tga", "bmp"]
-gif_codec = ["image/gif_codec"]
+common = ["gif", "jpeg", "png", "tga", "bmp"]
+gif = ["image/gif"]
 ico = ["image/ico"]
 jpeg = ["image/jpeg"]
-png_codec = ["image/png_codec"]
+png = ["image/png"]
 pnm = ["image/pnm"]
 tga = ["image/tga"]
 tiff = ["image/tiff"]
@@ -25,4 +25,4 @@ bmp = ["image/bmp"]
 hdr = ["image/hdr"]
 
 [dependencies]
-image = { version = "0.22", default-features = false }
+image = { version = "0.23", default-features = false }
