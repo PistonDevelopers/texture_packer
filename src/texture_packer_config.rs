@@ -1,5 +1,6 @@
 use std::default::Default;
 
+/// Configuration for a texture packer.
 #[derive(Debug, Copy, Clone)]
 pub struct TexturePackerConfig {
     //
