@@ -63,7 +63,7 @@ impl MemoryRGBA8Texture {
         }
 
         MemoryRGBA8Texture {
-            pixels: pixels,
+            pixels,
             width: w,
             height: h,
         }

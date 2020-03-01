@@ -13,7 +13,7 @@ impl<'a, T: Texture + Clone> SubTexture<'a, T> {
     pub fn new(texture: T, source: Rect) -> SubTexture<'a, T> {
         SubTexture {
             texture: Cow::Owned(texture),
-            source: source,
+            source,
         }
     }
 
@@ -21,7 +21,7 @@ impl<'a, T: Texture + Clone> SubTexture<'a, T> {
     pub fn from_ref(texture: &'a T, source: Rect) -> SubTexture<'a, T> {
         SubTexture {
             texture: Cow::Borrowed(texture),
-            source: source,
+            source,
         }
     }
 }

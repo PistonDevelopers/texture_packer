@@ -14,12 +14,7 @@ pub struct Rect {
 impl Rect {
     /// Create a new [Rect] based on a position and its width and height.
     pub fn new(x: u32, y: u32, w: u32, h: u32) -> Rect {
-        Rect {
-            x: x,
-            y: y,
-            w: w,
-            h: h,
-        }
+        Rect { x, y, w, h }
     }
 
     /// Create a new [Rect] based on two points spanning the rectangle.
@@ -91,7 +86,7 @@ impl Rect {
     /// Split two rectangles into non-overlapping regions.
     pub fn crop(&self, other: &Rect) -> Vec<Rect> {
         if !self.intersects(other) {
-            return vec![self.clone()];
+            return vec![*self];
         }
 
         let inside_x1 = if other.left() < self.left() {

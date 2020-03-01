@@ -45,9 +45,9 @@ impl<P: Pixel> SkylinePacker<P> {
         });
 
         SkylinePacker {
-            config: config,
+            config,
             border: Rect::new(0, 0, config.max_width, config.max_height),
-            skylines: skylines,
+            skylines,
             phantom_data: PhantomData,
         }
     }
@@ -171,9 +171,9 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
             rect.h -= self.config.texture_padding;
 
             Some(Frame {
-                key: key,
+                key,
                 frame: rect,
-                rotated: rotated,
+                rotated,
                 trimmed: false,
                 source: Rect {
                     x: 0,
@@ -200,6 +200,6 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
 
             return skyline.right() <= self.border.right() && skyline.y <= self.border.bottom();
         }
-        return false;
+        false
     }
 }

@@ -45,7 +45,7 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>>
                 return packer.pack_ref(key, texture);
             }
         }
-        let mut packer = TexturePacker::new_skyline(self.config.clone());
+        let mut packer = TexturePacker::new_skyline(self.config);
         packer.pack_ref(key, texture)?;
         self.pages.push(packer);
         Ok(())
@@ -58,7 +58,7 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>>
                 return packer.pack_own(key, texture);
             }
         }
-        let mut packer = TexturePacker::new_skyline(self.config.clone());
+        let mut packer = TexturePacker::new_skyline(self.config);
         packer.pack_own(key, texture)?;
         self.pages.push(packer);
         Ok(())

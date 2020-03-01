@@ -31,7 +31,7 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
             textures: HashMap::new(),
             frames: HashMap::new(),
             packer: SkylinePacker::<Pix>::new(config),
-            config: config,
+            config,
         }
     }
 }
