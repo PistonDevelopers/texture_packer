@@ -5,10 +5,12 @@ use crate::{
 use image::{DynamicImage, ImageBuffer, Rgba};
 use std::marker::PhantomData;
 
+/// Exporter type for images.
 #[derive(Copy, Clone)]
 pub struct ImageExporter<T>(PhantomData<T>);
 
 impl<T: Texture<Pixel = Rgba<u8>>> ImageExporter<T> {
+    /// Export a texture to an image type.
     pub fn export(texture: &T) -> ExportResult<DynamicImage> {
         <Self as Exporter<T>>::export(texture)
     }
