@@ -1,13 +1,18 @@
 extern crate image;
 extern crate texture_packer;
 
-use std::{fs::File, path::Path};
+use std::{
+    fs::{self, File},
+    path::Path,
+};
 use texture_packer::{
     exporter::ImageExporter, importer::ImageImporter, texture::Texture, MultiTexturePacker,
     TexturePacker, TexturePackerConfig,
 };
 
 fn main() {
+    fs::create_dir_all("target/output").unwrap();
+
     //
     // Perform texture packing
     //
@@ -46,10 +51,12 @@ fn main() {
         // Save the result
         //
         let exporter = ImageExporter::export(&packer).unwrap();
-        let mut file = File::create("examples/output/skyline-packer-output.png").unwrap();
+        let mut file = File::create("target/output/skyline-packer-output.png").unwrap();
         exporter
             .write_to(&mut file, image::ImageFormat::Png)
             .unwrap();
+
+        println!("Output texture stored in {:?}", file);
     }
 
     // multiple atlases
@@ -80,13 +87,15 @@ fn main() {
             //
             let exporter = ImageExporter::export(page).unwrap();
             let mut file = File::create(&format!(
-                "examples/output/skyline-multi-packer-output-{}.png",
+                "target/output/skyline-multi-packer-output-{}.png",
                 i
             ))
             .unwrap();
             exporter
                 .write_to(&mut file, image::ImageFormat::Png)
                 .unwrap();
+
+            println!("Multi output texture stored in {:?}", file);
         }
     }
 }
