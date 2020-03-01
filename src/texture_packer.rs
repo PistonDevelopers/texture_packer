@@ -14,6 +14,7 @@ pub enum PackError {
     TextureTooLargeToFitIntoAtlas,
 }
 
+/// Packs textures into a single texture atlas.
 pub struct TexturePacker<'a, T: 'a + Clone, P> {
     textures: HashMap<String, SubTexture<'a, T>>,
     frames: HashMap<String, Frame>,
@@ -24,6 +25,7 @@ pub struct TexturePacker<'a, T: 'a + Clone, P> {
 impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
     TexturePacker<'a, T, SkylinePacker<Pix>>
 {
+    /// Create a new packer using the skyline packing algorithm.
     pub fn new_skyline(config: TexturePackerConfig) -> TexturePacker<'a, T, SkylinePacker<Pix>> {
         TexturePacker {
             textures: HashMap::new(),
@@ -37,10 +39,12 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
 impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
     TexturePacker<'a, T, P>
 {
+    /// Check if the texture can be packed into this packer.
     pub fn can_pack(&self, texture: &'a T) -> bool {
         self.packer.can_pack(texture)
     }
 
+    /// Pack the `texture` into this packer, taking a reference of the texture object.
     pub fn pack_ref(&mut self, key: String, texture: &'a T) -> PackResult<()> {
         if !self.packer.can_pack(texture) {
             return Err(PackError::TextureTooLargeToFitIntoAtlas);
@@ -68,6 +72,7 @@ impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
         Ok(())
     }
 
+    /// Pack the `texture` into this packer, taking ownership of the texture object.
     pub fn pack_own(&mut self, key: String, texture: T) -> PackResult<()> {
         if !self.packer.can_pack(&texture) {
             return Err(PackError::TextureTooLargeToFitIntoAtlas);
@@ -95,10 +100,12 @@ impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
         Ok(())
     }
 
+    /// Get the backing mapping from strings to frames.
     pub fn get_frames(&self) -> &HashMap<String, Frame> {
         &self.frames
     }
 
+    /// Acquire a frame by its name.
     pub fn get_frame(&self, key: &str) -> Option<&Frame> {
         if let Some(frame) = self.frames.get(key) {
             Some(frame)
@@ -107,6 +114,7 @@ impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
         }
     }
 
+    /// Get the frame that overlaps with a specified coordinate.
     fn get_frame_at(&self, x: u32, y: u32) -> Option<&Frame> {
         for (_, frame) in self.frames.iter() {
             if frame.frame.contains_point(x, y) {
