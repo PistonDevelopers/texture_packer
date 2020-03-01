@@ -1,7 +1,5 @@
-use crate::{
-    image::{self, DynamicImage},
-    importer::{ImportResult, Importer},
-};
+use crate::importer::{ImportResult, Importer};
+use image::{self, DynamicImage};
 use std::path::Path;
 
 #[derive(Copy, Clone)]

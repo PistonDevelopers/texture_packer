@@ -1,4 +1,3 @@
-extern crate image;
 
 pub use crate::{
     frame::Frame, multi_texture_packer::MultiTexturePacker, rect::Rect,

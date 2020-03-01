@@ -1,8 +1,8 @@
 use crate::{
     exporter::{ExportResult, Exporter},
-    image::{DynamicImage, ImageBuffer, Rgba},
     texture::Texture,
 };
+use image::{DynamicImage, ImageBuffer, Rgba};
 use std::marker::PhantomData;
 
 #[derive(Copy, Clone)]
