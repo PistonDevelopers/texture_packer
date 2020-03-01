@@ -1,3 +1,10 @@
+#![deny(
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code,
+    unused_import_braces,
+    unused_qualifications
+)]
 
 pub use crate::{
     frame::Frame, multi_texture_packer::MultiTexturePacker, rect::Rect,
