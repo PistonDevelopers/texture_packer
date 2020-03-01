@@ -22,7 +22,7 @@ impl<T: Texture<Pixel = Rgba<u8>>> Exporter<T> for ImageExporter<T> {
         let height = texture.height();
 
         if width == 0 || height == 0 {
-            return Err("Widht or height of this texture is zero".to_string());
+            return Err("Width or height of this texture is zero".to_string());
         }
 
         let mut pixels = Vec::new();
