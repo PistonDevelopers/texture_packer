@@ -50,6 +50,8 @@ impl MemoryRGBA8Texture {
     pub fn from_memory(buf: &[u8], w: u32, h: u32) -> MemoryRGBA8Texture {
         let mut pixels = Vec::new();
 
+        assert_eq!((buf.len() / 4) as u32, w * h, "buffer does not contain as many pixels ({}) as specified by the width and height ({}, {}) = {}", buf.len() / 4, w, h, w * h);
+
         for pixel in buf.chunks(4) {
             pixels.push(RGBA8 {
                 r: pixel[0],
@@ -94,5 +96,18 @@ impl Texture for MemoryRGBA8Texture {
     fn set(&mut self, x: u32, y: u32, val: RGBA8) {
         let index = self.index_for(x, y);
         self.pixels[index] = val;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic(
+        expected = "buffer does not contain as many pixels (0) as specified by the width and height (1, 1) = 1"
+    )]
+    fn input_data_not_divisible_by_4() {
+        MemoryRGBA8Texture::from_memory(&[0], 1, 1);
     }
 }
