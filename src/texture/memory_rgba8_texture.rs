@@ -1,10 +1,16 @@
+//! Defines an RGBA8-based texture and pixel format.
 use crate::texture::{Pixel, Texture};
 
+/// [Pixel] format for [MemoryRGBA8Texture].
 #[derive(Copy, Clone)]
 pub struct RGBA8 {
+    /// Red component.
     pub r: u8,
+    /// Green component.
     pub g: u8,
+    /// Blue component.
     pub b: u8,
+    /// Alpha component.
     pub a: u8,
 }
 
@@ -32,6 +38,7 @@ impl Pixel for RGBA8 {
     }
 }
 
+/// Texture from RGBA8 pixel data.
 pub struct MemoryRGBA8Texture {
     pixels: Vec<RGBA8>,
     width: u32,
@@ -39,6 +46,7 @@ pub struct MemoryRGBA8Texture {
 }
 
 impl MemoryRGBA8Texture {
+    /// Create a texture from memory given a raw buffer.
     pub fn from_memory(buf: &[u8], w: u32, h: u32) -> MemoryRGBA8Texture {
         let mut pixels = Vec::new();
 
