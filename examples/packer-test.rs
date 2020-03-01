@@ -28,7 +28,8 @@ fn main() {
             let name = format!("{}.png", i);
             let path = format!("examples/assets/{}", name);
             let path = Path::new(&path);
-            let texture = ImageImporter::import_from_file(&path).unwrap();
+            let texture = ImageImporter::import_from_file(&path)
+                .expect("Unable to import file. Run this example with --features=\"png\"");
 
             packer.pack_own(name, texture).unwrap();
         }
