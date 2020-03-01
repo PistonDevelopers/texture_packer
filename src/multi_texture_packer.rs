@@ -64,3 +64,28 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>>
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{texture::memory_rgba8_texture as mrt, texture_packer::PackError};
+
+    #[test]
+    fn texture_too_small() {
+        let config = TexturePackerConfig {
+            max_width: 1,
+            max_height: 1,
+            allow_rotation: false,
+            border_padding: 0,
+            texture_padding: 0,
+            trim: false,
+            texture_outlines: false,
+        };
+        let mut mtp = MultiTexturePacker::new_skyline(config);
+        let texture = mrt::MemoryRGBA8Texture::from_memory(&[0, 0, 0, 0, 0, 0, 0, 0], 2, 1);
+        assert_eq!(
+            Err(PackError::TextureTooLargeToFitIntoAtlas),
+            mtp.pack_own("".into(), texture)
+        );
+    }
+}

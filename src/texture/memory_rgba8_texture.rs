@@ -39,6 +39,7 @@ impl Pixel for RGBA8 {
 }
 
 /// Texture from RGBA8 pixel data.
+#[derive(Clone)]
 pub struct MemoryRGBA8Texture {
     pixels: Vec<RGBA8>,
     width: u32,
