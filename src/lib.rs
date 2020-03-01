@@ -1,4 +1,6 @@
+//! Library for packing different textures into a texture atlas for efficient GPU rendering.
 #![deny(
+    missing_docs,
     trivial_casts,
     trivial_numeric_casts,
     unsafe_code,
