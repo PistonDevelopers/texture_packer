@@ -1,3 +1,5 @@
+use crate::texture::Texture;
+
 /// Defines a rectangle in pixels with the origin at the top-left of the texture atlas.
 #[derive(Copy, Clone, Debug)]
 pub struct Rect {
@@ -148,5 +150,16 @@ impl Rect {
         }
 
         result
+    }
+}
+
+impl<T: Texture> From<&T> for Rect {
+    fn from(item: &T) -> Self {
+        Rect {
+            x: 0,
+            y: 0,
+            w: item.width(),
+            h: item.height(),
+        }
     }
 }
