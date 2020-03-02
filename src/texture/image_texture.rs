@@ -1,3 +1,4 @@
+//! Define [Texture] and [Pixel] for a generic [Image](image::GenericImage).
 use crate::texture::{Pixel, Texture};
 use image::{GenericImage, Rgb, Rgba};
 

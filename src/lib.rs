@@ -1,4 +1,12 @@
-extern crate image;
+//! Library for packing different textures into a texture atlas for efficient GPU rendering.
+#![deny(
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code,
+    unused_import_braces,
+    unused_qualifications
+)]
 
 pub use crate::{
     frame::Frame, multi_texture_packer::MultiTexturePacker, rect::Rect,

@@ -1,10 +1,16 @@
+//! Defines an RGBA8-based texture and pixel format.
 use crate::texture::{Pixel, Texture};
 
+/// [Pixel] format for [MemoryRGBA8Texture].
 #[derive(Copy, Clone)]
 pub struct RGBA8 {
+    /// Red component.
     pub r: u8,
+    /// Green component.
     pub g: u8,
+    /// Blue component.
     pub b: u8,
+    /// Alpha component.
     pub a: u8,
 }
 
@@ -32,6 +38,8 @@ impl Pixel for RGBA8 {
     }
 }
 
+/// Texture from RGBA8 pixel data.
+#[derive(Clone)]
 pub struct MemoryRGBA8Texture {
     pixels: Vec<RGBA8>,
     width: u32,
@@ -39,8 +47,11 @@ pub struct MemoryRGBA8Texture {
 }
 
 impl MemoryRGBA8Texture {
+    /// Create a texture from memory given a raw buffer.
     pub fn from_memory(buf: &[u8], w: u32, h: u32) -> MemoryRGBA8Texture {
         let mut pixels = Vec::new();
+
+        assert_eq!((buf.len() / 4) as u32, w * h, "buffer does not contain as many pixels ({}) as specified by the width and height ({}, {}) = {}", buf.len() / 4, w, h, w * h);
 
         for pixel in buf.chunks(4) {
             pixels.push(RGBA8 {
@@ -52,7 +63,7 @@ impl MemoryRGBA8Texture {
         }
 
         MemoryRGBA8Texture {
-            pixels: pixels,
+            pixels,
             width: w,
             height: h,
         }
@@ -86,5 +97,18 @@ impl Texture for MemoryRGBA8Texture {
     fn set(&mut self, x: u32, y: u32, val: RGBA8) {
         let index = self.index_for(x, y);
         self.pixels[index] = val;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic(
+        expected = "buffer does not contain as many pixels (0) as specified by the width and height (1, 1) = 1"
+    )]
+    fn input_data_not_divisible_by_4() {
+        MemoryRGBA8Texture::from_memory(&[0], 1, 1);
     }
 }

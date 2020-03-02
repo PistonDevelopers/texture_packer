@@ -1,23 +1,27 @@
+//! Sub-texture [Texture].
 use crate::{rect::Rect, texture::Texture};
 use std::borrow::Cow;
 
+/// Texture that is a subset of another texture.
 pub struct SubTexture<'a, T: 'a + Clone> {
     texture: Cow<'a, T>,
     source: Rect,
 }
 
 impl<'a, T: Texture + Clone> SubTexture<'a, T> {
+    /// Get a `SubTexture` owning the parent texture.
     pub fn new(texture: T, source: Rect) -> SubTexture<'a, T> {
         SubTexture {
             texture: Cow::Owned(texture),
-            source: source,
+            source,
         }
     }
 
+    /// Get a `SubTexture` referencing the parent texture.
     pub fn from_ref(texture: &'a T, source: Rect) -> SubTexture<'a, T> {
         SubTexture {
             texture: Cow::Borrowed(texture),
-            source: source,
+            source,
         }
     }
 }
