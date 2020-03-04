@@ -15,26 +15,26 @@ pub enum PackError {
 }
 
 /// Packs textures into a single texture atlas.
-pub struct TexturePacker<'a, T: 'a + Clone, P> {
+pub struct TexturePacker<'a, T: 'a + Clone> {
     textures: HashMap<String, SubTexture<'a, T>>,
     frames: HashMap<String, Frame>,
-    packer: P,
+    packer: Box<dyn Packer>,
     config: TexturePackerConfig,
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> TexturePacker<'a, T, SkylinePacker> {
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
     /// Create a new packer using the skyline packing algorithm.
-    pub fn new_skyline(config: TexturePackerConfig) -> TexturePacker<'a, T, SkylinePacker> {
+    pub fn new_skyline(config: TexturePackerConfig) -> Self {
         TexturePacker {
             textures: HashMap::new(),
             frames: HashMap::new(),
-            packer: SkylinePacker::new(config),
+            packer: Box::new(SkylinePacker::new(config)),
             config,
         }
     }
 }
 
-impl<'a, Pix: Pixel, P: Packer, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T, P> {
+impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
     /// Check if the texture can be packed into this packer.
     pub fn can_pack(&self, texture: &'a T) -> bool {
         let rect = texture.into();
@@ -126,10 +126,9 @@ impl<'a, Pix: Pixel, P: Packer, T: Clone + Texture<Pixel = Pix>> TexturePacker<'
     }
 }
 
-impl<'a, Pix, P, T: Clone> Texture for TexturePacker<'a, T, P>
+impl<'a, Pix, T: Clone> Texture for TexturePacker<'a, T>
 where
     Pix: Pixel,
-    P: Packer,
     T: Texture<Pixel = Pix>,
 {
     type Pixel = Pix;
@@ -239,4 +238,21 @@ fn trim_texture<T: Texture>(texture: &T) -> Rect {
         }
     }
     Rect::new_with_points(x1, y1, x2, y2)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::texture::memory_rgba8_texture::MemoryRGBA8Texture;
+
+    #[test]
+    fn able_to_store_in_struct() {
+        let packer = TexturePacker::new_skyline(TexturePackerConfig::default());
+
+        struct MyPacker<'a> {
+            _packer: TexturePacker<'a, MemoryRGBA8Texture>,
+        }
+
+        MyPacker { _packer: packer };
+    }
 }

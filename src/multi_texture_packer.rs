@@ -1,5 +1,4 @@
 use crate::{
-    packer::{Packer, SkylinePacker},
     texture::{Pixel, Texture},
     texture_packer::{PackResult, TexturePacker},
     texture_packer_config::TexturePackerConfig,
@@ -9,21 +8,19 @@ use crate::{
 ///
 /// Will create a new page for textures that do not fit. Textures packed after a new page is added
 /// will still attempt to check each page for available space.
-pub struct MultiTexturePacker<'a, T: 'a + Clone, P> {
+pub struct MultiTexturePacker<'a, T: 'a + Clone> {
     config: TexturePackerConfig,
-    pages: Vec<TexturePacker<'a, T, P>>,
+    pages: Vec<TexturePacker<'a, T>>,
 }
 
-impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, P: Packer> MultiTexturePacker<'a, T, P> {
+impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> MultiTexturePacker<'a, T> {
     /// Get an array of all underlying single-atlas texture packers.
-    pub fn get_pages(&self) -> &[TexturePacker<'a, T, P>] {
+    pub fn get_pages(&self) -> &[TexturePacker<'a, T>] {
         &self.pages
     }
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
-    MultiTexturePacker<'a, T, SkylinePacker>
-{
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> MultiTexturePacker<'a, T> {
     /// Create a new packer using the skyline packing algorithm.
     pub fn new_skyline(config: TexturePackerConfig) -> Self {
         Self {
@@ -33,9 +30,7 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
     }
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
-    MultiTexturePacker<'a, T, SkylinePacker>
-{
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> MultiTexturePacker<'a, T> {
     /// Pack the `texture` into this packer, taking a reference of the texture object.
     pub fn pack_ref(&mut self, key: String, texture: &'a T) -> PackResult<()> {
         for packer in &mut self.pages {
