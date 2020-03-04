@@ -91,11 +91,7 @@ impl SkylinePacker {
             }
         }
 
-        if let Some(index) = index {
-            Some((index, rect))
-        } else {
-            None
-        }
+        index.map(|x| (x, rect))
     }
 
     fn split(&mut self, index: usize, rect: &Rect) {
