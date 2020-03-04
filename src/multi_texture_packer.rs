@@ -14,9 +14,7 @@ pub struct MultiTexturePacker<'a, T: 'a + Clone, P> {
     pages: Vec<TexturePacker<'a, T, P>>,
 }
 
-impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, P: Packer<Pixel = Pix>>
-    MultiTexturePacker<'a, T, P>
-{
+impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, P: Packer> MultiTexturePacker<'a, T, P> {
     /// Get an array of all underlying single-atlas texture packers.
     pub fn get_pages(&self) -> &[TexturePacker<'a, T, P>] {
         &self.pages
@@ -24,7 +22,7 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, P: Packer<Pixel = Pix>>
 }
 
 impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
-    MultiTexturePacker<'a, T, SkylinePacker<Pix>>
+    MultiTexturePacker<'a, T, SkylinePacker>
 {
     /// Create a new packer using the skyline packing algorithm.
     pub fn new_skyline(config: TexturePackerConfig) -> Self {
@@ -35,8 +33,8 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
     }
 }
 
-impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>>
-    MultiTexturePacker<'a, T, SkylinePacker<Pix>>
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
+    MultiTexturePacker<'a, T, SkylinePacker>
 {
     /// Pack the `texture` into this packer, taking a reference of the texture object.
     pub fn pack_ref(&mut self, key: String, texture: &'a T) -> PackResult<()> {

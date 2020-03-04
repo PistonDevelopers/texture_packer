@@ -1,11 +1,5 @@
-use crate::{
-    frame::Frame,
-    packer::Packer,
-    rect::Rect,
-    texture::{Pixel, Texture},
-    texture_packer_config::TexturePackerConfig,
-};
-use std::{cmp::max, marker::PhantomData};
+use crate::{frame::Frame, packer::Packer, rect::Rect, texture_packer_config::TexturePackerConfig};
+use std::cmp::max;
 
 struct Skyline {
     pub x: u32,
@@ -25,18 +19,16 @@ impl Skyline {
     }
 }
 
-pub struct SkylinePacker<P: Pixel> {
+pub struct SkylinePacker {
     config: TexturePackerConfig,
     border: Rect,
 
     // the skylines are sorted by their `x` position
     skylines: Vec<Skyline>,
-
-    phantom_data: PhantomData<P>,
 }
 
-impl<P: Pixel> SkylinePacker<P> {
-    pub fn new(config: TexturePackerConfig) -> SkylinePacker<P> {
+impl SkylinePacker {
+    pub fn new(config: TexturePackerConfig) -> Self {
         let mut skylines = Vec::new();
         skylines.push(Skyline {
             x: 0,
@@ -48,7 +40,6 @@ impl<P: Pixel> SkylinePacker<P> {
             config,
             border: Rect::new(0, 0, config.max_width, config.max_height),
             skylines,
-            phantom_data: PhantomData,
         }
     }
 
@@ -151,12 +142,10 @@ impl<P: Pixel> SkylinePacker<P> {
     }
 }
 
-impl<P: Pixel> Packer for SkylinePacker<P> {
-    type Pixel = P;
-
-    fn pack(&mut self, key: String, texture: &dyn Texture<Pixel = P>) -> Option<Frame> {
-        let mut width = texture.width();
-        let mut height = texture.height();
+impl Packer for SkylinePacker {
+    fn pack(&mut self, key: String, texture_rect: &Rect) -> Option<Frame> {
+        let mut width = texture_rect.w;
+        let mut height = texture_rect.h;
 
         width += self.config.texture_padding;
         height += self.config.texture_padding;
@@ -178,8 +167,8 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
                 source: Rect {
                     x: 0,
                     y: 0,
-                    w: texture.width(),
-                    h: texture.height(),
+                    w: texture_rect.w,
+                    h: texture_rect.h,
                 },
             })
         } else {
@@ -187,10 +176,10 @@ impl<P: Pixel> Packer for SkylinePacker<P> {
         }
     }
 
-    fn can_pack(&self, texture: &dyn Texture<Pixel = P>) -> bool {
+    fn can_pack(&self, texture_rect: &Rect) -> bool {
         if let Some((_, rect)) = self.find_skyline(
-            texture.width() + self.config.texture_padding,
-            texture.height() + self.config.texture_padding,
+            texture_rect.w + self.config.texture_padding,
+            texture_rect.h + self.config.texture_padding,
         ) {
             let skyline = Skyline {
                 x: rect.left(),

@@ -22,31 +22,29 @@ pub struct TexturePacker<'a, T: 'a + Clone, P> {
     config: TexturePackerConfig,
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>>
-    TexturePacker<'a, T, SkylinePacker<Pix>>
-{
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> TexturePacker<'a, T, SkylinePacker> {
     /// Create a new packer using the skyline packing algorithm.
-    pub fn new_skyline(config: TexturePackerConfig) -> TexturePacker<'a, T, SkylinePacker<Pix>> {
+    pub fn new_skyline(config: TexturePackerConfig) -> TexturePacker<'a, T, SkylinePacker> {
         TexturePacker {
             textures: HashMap::new(),
             frames: HashMap::new(),
-            packer: SkylinePacker::<Pix>::new(config),
+            packer: SkylinePacker::new(config),
             config,
         }
     }
 }
 
-impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
-    TexturePacker<'a, T, P>
-{
+impl<'a, Pix: Pixel, P: Packer, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T, P> {
     /// Check if the texture can be packed into this packer.
     pub fn can_pack(&self, texture: &'a T) -> bool {
-        self.packer.can_pack(texture)
+        let rect = texture.into();
+        self.packer.can_pack(&rect)
     }
 
     /// Pack the `texture` into this packer, taking a reference of the texture object.
     pub fn pack_ref(&mut self, key: String, texture: &'a T) -> PackResult<()> {
-        if !self.packer.can_pack(texture) {
+        let rect = texture.into();
+        if !self.packer.can_pack(&rect) {
             return Err(PackError::TextureTooLargeToFitIntoAtlas);
         }
 
@@ -58,7 +56,8 @@ impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
         };
 
         let texture = SubTexture::from_ref(texture, source);
-        if let Some(mut frame) = self.packer.pack(key.clone(), &texture) {
+        let rect = (&texture).into();
+        if let Some(mut frame) = self.packer.pack(key.clone(), &rect) {
             frame.frame.x += self.config.border_padding;
             frame.frame.y += self.config.border_padding;
             frame.trimmed = self.config.trim;
@@ -74,7 +73,8 @@ impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
 
     /// Pack the `texture` into this packer, taking ownership of the texture object.
     pub fn pack_own(&mut self, key: String, texture: T) -> PackResult<()> {
-        if !self.packer.can_pack(&texture) {
+        let rect = (&texture).into();
+        if !self.packer.can_pack(&rect) {
             return Err(PackError::TextureTooLargeToFitIntoAtlas);
         }
 
@@ -86,7 +86,8 @@ impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
         };
 
         let texture = SubTexture::new(texture, source);
-        if let Some(mut frame) = self.packer.pack(key.clone(), &texture) {
+        let rect = (&texture).into();
+        if let Some(mut frame) = self.packer.pack(key.clone(), &rect) {
             frame.frame.x += self.config.border_padding;
             frame.frame.y += self.config.border_padding;
             frame.trimmed = self.config.trim;
@@ -128,7 +129,7 @@ impl<'a, Pix: Pixel, P: Packer<Pixel = Pix>, T: Clone + Texture<Pixel = Pix>>
 impl<'a, Pix, P, T: Clone> Texture for TexturePacker<'a, T, P>
 where
     Pix: Pixel,
-    P: Packer<Pixel = Pix>,
+    P: Packer,
     T: Texture<Pixel = Pix>,
 {
     type Pixel = Pix;
