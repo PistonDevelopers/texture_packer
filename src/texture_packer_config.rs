@@ -10,7 +10,8 @@ pub struct TexturePackerConfig {
     pub max_width: u32,
     /// Max height of the packed image. Default value is `1024`.
     pub max_height: u32,
-    /// True to allow rotation of the input images. Default value is `true`.
+    /// True to allow rotation of the input images. Default value is `true`. Images rotated will be
+    /// rotated 90 degrees clockwise.
     pub allow_rotation: bool,
 
     //
