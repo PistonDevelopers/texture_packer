@@ -6,6 +6,7 @@ use crate::{
     texture_packer_config::TexturePackerConfig,
 };
 use std::collections::HashMap;
+use std::cmp::min;
 
 pub type PackResult<T> = Result<T, PackError>;
 
@@ -117,8 +118,18 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
 
     /// Get the frame that overlaps with a specified coordinate.
     fn get_frame_at(&self, x: u32, y: u32) -> Option<&Frame> {
+        let extrusion = self.config.texture_extrusion;
+
         for (_, frame) in self.frames.iter() {
-            if frame.frame.contains_point(x, y) {
+            let mut rect = frame.frame;
+
+            rect.x = rect.x.saturating_sub(extrusion);
+            rect.y = rect.y.saturating_sub(extrusion);
+
+            rect.w += extrusion * 2;
+            rect.h += extrusion * 2;
+
+            if rect.contains_point(x, y) {
                 return Some(frame);
             }
         }
@@ -175,13 +186,16 @@ where
 
     fn get(&self, x: u32, y: u32) -> Option<Pix> {
         if let Some(frame) = self.get_frame_at(x, y) {
-            if let Some(texture) = self.textures.get(&frame.key) {
-                if self.config.texture_outlines && frame.frame.is_outline(x, y) {
-                    return Some(<Pix as Pixel>::outline());
-                }
+            if self.config.texture_outlines && frame.frame.is_outline(x, y) {
+                return Some(<Pix as Pixel>::outline());
+            }
 
-                let x = x - frame.frame.x;
-                let y = y - frame.frame.y;
+            if let Some(texture) = self.textures.get(&frame.key) {
+                let x = x.saturating_sub(frame.frame.x);
+                let y = y.saturating_sub(frame.frame.y);
+
+                let x = min(x, texture.width() - 1);
+                let y = min(y, texture.height() - 1);
 
                 return if frame.rotated {
                     texture.get_rotated(x, y)
