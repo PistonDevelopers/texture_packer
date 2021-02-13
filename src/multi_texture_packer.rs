@@ -71,6 +71,7 @@ mod tests {
             allow_rotation: false,
             border_padding: 0,
             texture_padding: 0,
+            texture_extrusion: 0,
             trim: false,
             texture_outlines: false,
         };

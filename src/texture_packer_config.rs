@@ -21,6 +21,8 @@ pub struct TexturePackerConfig {
     pub border_padding: u32,
     /// Size of the padding between frames in pixel. Default value is `2`
     pub texture_padding: u32,
+    /// Size of the repeated pixels at the border of each image. Default value is `0`.
+    pub texture_extrusion: u32,
 
     /// True to trim the empty pixels of the input images. Default value is `true`.
     pub trim: bool,
@@ -39,6 +41,7 @@ impl Default for TexturePackerConfig {
 
             border_padding: 0,
             texture_padding: 2,
+            texture_extrusion: 0,
 
             trim: true,
 
