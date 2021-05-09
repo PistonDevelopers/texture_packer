@@ -138,8 +138,8 @@ impl SkylinePacker {
     }
 }
 
-impl Packer for SkylinePacker {
-    fn pack(&mut self, key: String, texture_rect: &Rect) -> Option<Frame> {
+impl<K> Packer<K> for SkylinePacker {
+    fn pack(&mut self, key: K, texture_rect: &Rect) -> Option<Frame<K>> {
         let mut width = texture_rect.w;
         let mut height = texture_rect.h;
 

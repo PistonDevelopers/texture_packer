@@ -7,6 +7,7 @@ use crate::{
 };
 use std::collections::HashMap;
 use std::cmp::min;
+use std::hash::Hash;
 
 pub type PackResult<T> = Result<T, PackError>;
 
@@ -16,14 +17,14 @@ pub enum PackError {
 }
 
 /// Packs textures into a single texture atlas.
-pub struct TexturePacker<'a, T: 'a + Clone> {
-    textures: HashMap<String, SubTexture<'a, T>>,
-    frames: HashMap<String, Frame>,
-    packer: Box<dyn Packer>,
+pub struct TexturePacker<'a, T: 'a + Clone, K: Clone + Eq + Hash> {
+    textures: HashMap<K, SubTexture<'a, T>>,
+    frames: HashMap<K, Frame<K>>,
+    packer: Box<dyn Packer<K>>,
     config: TexturePackerConfig,
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> TexturePacker<'a, T, K> {
     /// Create a new packer using the skyline packing algorithm.
     pub fn new_skyline(config: TexturePackerConfig) -> Self {
         TexturePacker {
@@ -35,7 +36,7 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> 
     }
 }
 
-impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
+impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> TexturePacker<'a, T, K> {
     /// Check if the texture can be packed into this packer.
     pub fn can_pack(&self, texture: &'a T) -> bool {
         let rect = texture.into();
@@ -43,7 +44,7 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
     }
 
     /// Pack the `texture` into this packer, taking a reference of the texture object.
-    pub fn pack_ref(&mut self, key: String, texture: &'a T) -> PackResult<()> {
+    pub fn pack_ref(&mut self, key: K, texture: &'a T) -> PackResult<()> {
         let rect = texture.into();
         if !self.packer.can_pack(&rect) {
             return Err(PackError::TextureTooLargeToFitIntoAtlas);
@@ -73,7 +74,7 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
     }
 
     /// Pack the `texture` into this packer, taking ownership of the texture object.
-    pub fn pack_own(&mut self, key: String, texture: T) -> PackResult<()> {
+    pub fn pack_own(&mut self, key: K, texture: T) -> PackResult<()> {
         let rect = (&texture).into();
         if !self.packer.can_pack(&rect) {
             return Err(PackError::TextureTooLargeToFitIntoAtlas);
@@ -103,12 +104,12 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
     }
 
     /// Get the backing mapping from strings to frames.
-    pub fn get_frames(&self) -> &HashMap<String, Frame> {
+    pub fn get_frames(&self) -> &HashMap<K, Frame<K>> {
         &self.frames
     }
 
     /// Acquire a frame by its name.
-    pub fn get_frame(&self, key: &str) -> Option<&Frame> {
+    pub fn get_frame(&self, key: &K) -> Option<&Frame<K>> {
         if let Some(frame) = self.frames.get(key) {
             Some(frame)
         } else {
@@ -117,7 +118,7 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
     }
 
     /// Get the frame that overlaps with a specified coordinate.
-    fn get_frame_at(&self, x: u32, y: u32) -> Option<&Frame> {
+    fn get_frame_at(&self, x: u32, y: u32) -> Option<&Frame<K>> {
         let extrusion = self.config.texture_extrusion;
 
         for (_, frame) in self.frames.iter() {
@@ -137,7 +138,7 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> TexturePacker<'a, T> {
     }
 }
 
-impl<'a, Pix, T: Clone> Texture for TexturePacker<'a, T>
+impl<'a, Pix, T: Clone, K: Clone + Eq + Hash> Texture for TexturePacker<'a, T, K>
 where
     Pix: Pixel,
     T: Texture<Pixel = Pix>,
@@ -264,7 +265,7 @@ mod tests {
         let packer = TexturePacker::new_skyline(TexturePackerConfig::default());
 
         struct MyPacker<'a> {
-            _packer: TexturePacker<'a, MemoryRGBA8Texture>,
+            _packer: TexturePacker<'a, MemoryRGBA8Texture, String>,
         }
 
         MyPacker { _packer: packer };
