@@ -2,9 +2,9 @@ use crate::rect::Rect;
 
 /// Boundaries and properties of a packed texture.
 #[derive(Clone, Debug)]
-pub struct Frame {
+pub struct Frame<K> {
     /// Key used to uniquely identify this frame.
-    pub key: String,
+    pub key: K,
     /// Rectangle describing the texture coordinates and size.
     pub frame: Rect,
     /// True if the texture was rotated during packing. 

@@ -1,3 +1,4 @@
+use std::hash::Hash;
 use crate::{
     texture::{Pixel, Texture},
     texture_packer::{PackResult, TexturePacker},
@@ -8,19 +9,19 @@ use crate::{
 ///
 /// Will create a new page for textures that do not fit. Textures packed after a new page is added
 /// will still attempt to check each page for available space.
-pub struct MultiTexturePacker<'a, T: 'a + Clone> {
+pub struct MultiTexturePacker<'a, T: 'a + Clone, K: Clone + Eq + Hash> {
     config: TexturePackerConfig,
-    pages: Vec<TexturePacker<'a, T>>,
+    pages: Vec<TexturePacker<'a, T, K>>,
 }
 
-impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>> MultiTexturePacker<'a, T> {
+impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> MultiTexturePacker<'a, T, K> {
     /// Get an array of all underlying single-atlas texture packers.
-    pub fn get_pages(&self) -> &[TexturePacker<'a, T>] {
+    pub fn get_pages(&self) -> &[TexturePacker<'a, T, K>] {
         &self.pages
     }
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> MultiTexturePacker<'a, T> {
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> MultiTexturePacker<'a, T, K> {
     /// Create a new packer using the skyline packing algorithm.
     pub fn new_skyline(config: TexturePackerConfig) -> Self {
         Self {
@@ -30,9 +31,9 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> MultiTexturePacker<'a
     }
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> MultiTexturePacker<'a, T> {
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> MultiTexturePacker<'a, T, K> {
     /// Pack the `texture` into this packer, taking a reference of the texture object.
-    pub fn pack_ref(&mut self, key: String, texture: &'a T) -> PackResult<()> {
+    pub fn pack_ref(&mut self, key: K, texture: &'a T) -> PackResult<()> {
         for packer in &mut self.pages {
             if packer.can_pack(texture) {
                 return packer.pack_ref(key, texture);
@@ -45,7 +46,7 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>> MultiTexturePacker<'a
     }
 
     /// Pack the `texture` into this packer, taking ownership of the texture object.
-    pub fn pack_own(&mut self, key: String, texture: T) -> PackResult<()> {
+    pub fn pack_own(&mut self, key: K, texture: T) -> PackResult<()> {
         for packer in &mut self.pages {
             if packer.can_pack(&texture) {
                 return packer.pack_own(key, texture);
@@ -79,7 +80,7 @@ mod tests {
         let texture = mrt::MemoryRGBA8Texture::from_memory(&[0, 0, 0, 0, 0, 0, 0, 0], 2, 1);
         assert_eq!(
             Err(PackError::TextureTooLargeToFitIntoAtlas),
-            mtp.pack_own("".into(), texture)
+            mtp.pack_own(String::from(""), texture)
         );
     }
 }

@@ -4,7 +4,7 @@ pub use self::skyline_packer::SkylinePacker;
 
 mod skyline_packer;
 
-pub trait Packer {
-    fn pack(&mut self, key: String, texture_rect: &Rect) -> Option<Frame>;
+pub trait Packer<K> {
+    fn pack(&mut self, key: K, texture_rect: &Rect) -> Option<Frame<K>>;
     fn can_pack(&self, texture_rect: &Rect) -> bool;
 }
