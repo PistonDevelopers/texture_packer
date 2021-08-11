@@ -195,12 +195,13 @@ where
                 let x = x.saturating_sub(frame.frame.x);
                 let y = y.saturating_sub(frame.frame.y);
 
-                let x = min(x, texture.width() - 1);
-                let y = min(y, texture.height() - 1);
-
                 return if frame.rotated {
+                    let x = min(x, texture.height() - 1);
+                    let y = min(y, texture.width() - 1);
                     texture.get_rotated(x, y)
                 } else {
+                    let x = min(x, texture.width() - 1);
+                    let y = min(y, texture.height() - 1);
                     texture.get(x, y)
                 };
             }
