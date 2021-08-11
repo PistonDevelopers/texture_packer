@@ -29,12 +29,11 @@ pub struct SkylinePacker {
 
 impl SkylinePacker {
     pub fn new(config: TexturePackerConfig) -> Self {
-        let mut skylines = Vec::new();
-        skylines.push(Skyline {
+        let skylines = vec![Skyline {
             x: 0,
             y: 0,
             w: config.max_width,
-        });
+        }];
 
         SkylinePacker {
             config,

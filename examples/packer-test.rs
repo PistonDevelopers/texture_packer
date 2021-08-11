@@ -33,7 +33,7 @@ fn main() {
             let name = format!("{}.png", i);
             let path = format!("examples/assets/{}", name);
             let path = Path::new(&path);
-            let texture = ImageImporter::import_from_file(&path)
+            let texture = ImageImporter::import_from_file(path)
                 .expect("Unable to import file. Run this example with --features=\"png\"");
 
             packer.pack_own(name, texture).unwrap();
@@ -67,13 +67,13 @@ fn main() {
             let name = format!("{}.png", i);
             let path = format!("examples/assets/{}", name);
             let path = Path::new(&path);
-            let texture = ImageImporter::import_from_file(&path).unwrap();
+            let texture = ImageImporter::import_from_file(path).unwrap();
 
             packer.pack_own(format!("A{}", i), texture.clone()).unwrap();
             packer.pack_own(format!("B{}", i), texture).unwrap();
         }
 
-        for (i, page) in packer.get_pages().into_iter().enumerate() {
+        for (i, page) in packer.get_pages().iter().enumerate() {
             //
             // Print the information
             //
