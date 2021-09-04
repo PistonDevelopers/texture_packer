@@ -1,9 +1,9 @@
-use std::hash::Hash;
 use crate::{
     texture::{Pixel, Texture},
     texture_packer::{PackResult, TexturePacker},
     texture_packer_config::TexturePackerConfig,
 };
+use std::hash::Hash;
 
 /// Texture packer supporting multiple atlases.
 ///
@@ -14,14 +14,18 @@ pub struct MultiTexturePacker<'a, T: 'a + Clone, K: Clone + Eq + Hash> {
     pages: Vec<TexturePacker<'a, T, K>>,
 }
 
-impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> MultiTexturePacker<'a, T, K> {
+impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
+    MultiTexturePacker<'a, T, K>
+{
     /// Get an array of all underlying single-atlas texture packers.
     pub fn get_pages(&self) -> &[TexturePacker<'a, T, K>] {
         &self.pages
     }
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> MultiTexturePacker<'a, T, K> {
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
+    MultiTexturePacker<'a, T, K>
+{
     /// Create a new packer using the skyline packing algorithm.
     pub fn new_skyline(config: TexturePackerConfig) -> Self {
         Self {
@@ -31,7 +35,9 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
     }
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> MultiTexturePacker<'a, T, K> {
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
+    MultiTexturePacker<'a, T, K>
+{
     /// Pack the `texture` into this packer, taking a reference of the texture object.
     pub fn pack_ref(&mut self, key: K, texture: &'a T) -> PackResult<()> {
         for packer in &mut self.pages {

@@ -87,11 +87,7 @@ impl Texture for MemoryRGBA8Texture {
     }
 
     fn get(&self, x: u32, y: u32) -> Option<RGBA8> {
-        if let Some(p) = self.pixels.get(self.index_for(x, y)) {
-            Some(*p)
-        } else {
-            None
-        }
+        self.pixels.get(self.index_for(x, y)).copied()
     }
 
     fn set(&mut self, x: u32, y: u32, val: RGBA8) {

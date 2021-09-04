@@ -5,8 +5,8 @@ use crate::{
     texture::{Pixel, SubTexture, Texture},
     texture_packer_config::TexturePackerConfig,
 };
-use std::collections::HashMap;
 use std::cmp::min;
+use std::collections::HashMap;
 use std::hash::Hash;
 
 pub type PackResult<T> = Result<T, PackError>;
@@ -24,7 +24,9 @@ pub struct TexturePacker<'a, T: 'a + Clone, K: Clone + Eq + Hash> {
     config: TexturePackerConfig,
 }
 
-impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> TexturePacker<'a, T, K> {
+impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
+    TexturePacker<'a, T, K>
+{
     /// Create a new packer using the skyline packing algorithm.
     pub fn new_skyline(config: TexturePackerConfig) -> Self {
         TexturePacker {
@@ -36,7 +38,9 @@ impl<'a, Pix: Pixel, T: 'a + Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
     }
 }
 
-impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash> TexturePacker<'a, T, K> {
+impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
+    TexturePacker<'a, T, K>
+{
     /// Check if the texture can be packed into this packer.
     pub fn can_pack(&self, texture: &'a T) -> bool {
         let rect = texture.into();
