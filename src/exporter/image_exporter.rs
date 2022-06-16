@@ -27,7 +27,7 @@ impl<T: Texture<Pixel = Rgba<u8>>> Exporter<T> for ImageExporter<T> {
             return Err("Width or height of this texture is zero".to_string());
         }
 
-        let mut pixels = Vec::new();
+        let mut pixels = Vec::with_capacity((width * height * 4) as usize);
 
         for row in 0..height {
             for col in 0..width {
