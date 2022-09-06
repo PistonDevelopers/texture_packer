@@ -49,17 +49,15 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
 
     /// Pack the `texture` into this packer, taking a reference of the texture object.
     pub fn pack_ref(&mut self, key: K, texture: &'a T) -> PackResult<()> {
-        let rect = texture.into();
-        if !self.packer.can_pack(&rect) {
-            return Err(PackError::TextureTooLargeToFitIntoAtlas);
-        }
-
         let (w, h) = (texture.width(), texture.height());
         let source = if self.config.trim {
             trim_texture(texture)
         } else {
             Rect::new(0, 0, w, h)
         };
+        if !self.packer.can_pack(&source) {
+            return Err(PackError::TextureTooLargeToFitIntoAtlas);
+        }
 
         let texture = SubTexture::from_ref(texture, source);
         let rect = (&texture).into();
@@ -79,17 +77,15 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
 
     /// Pack the `texture` into this packer, taking ownership of the texture object.
     pub fn pack_own(&mut self, key: K, texture: T) -> PackResult<()> {
-        let rect = (&texture).into();
-        if !self.packer.can_pack(&rect) {
-            return Err(PackError::TextureTooLargeToFitIntoAtlas);
-        }
-
         let (w, h) = (texture.width(), texture.height());
         let source = if self.config.trim {
             trim_texture(&texture)
         } else {
             Rect::new(0, 0, w, h)
         };
+        if !self.packer.can_pack(&source) {
+            return Err(PackError::TextureTooLargeToFitIntoAtlas);
+        }
 
         let texture = SubTexture::new(texture, source);
         let rect = (&texture).into();
