@@ -26,24 +26,6 @@ impl<P: Pixel + image::Pixel, I: GenericImage<Pixel = P>> Texture for I {
     }
 }
 
-impl<T: Primitive> Pixel for Rgb<T> {
-    fn is_transparent(&self) -> bool {
-        false
-    }
-
-    fn transparency() -> Option<Rgb<T>> {
-        None
-    }
-
-    fn outline() -> Rgb<T> {
-        Rgb([
-            T::DEFAULT_MAX_VALUE,
-            T::DEFAULT_MIN_VALUE,
-            T::DEFAULT_MIN_VALUE,
-        ])
-    }
-}
-
 impl<T: Primitive> Pixel for Rgba<T> {
     fn is_transparent(&self) -> bool {
         self[3] == T::DEFAULT_MIN_VALUE
@@ -59,6 +41,24 @@ impl<T: Primitive> Pixel for Rgba<T> {
             T::DEFAULT_MIN_VALUE,
             T::DEFAULT_MIN_VALUE,
             T::DEFAULT_MAX_VALUE,
+        ])
+    }
+}
+
+impl<T: Primitive> Pixel for Rgb<T> {
+    fn is_transparent(&self) -> bool {
+        false
+    }
+
+    fn transparency() -> Option<Rgb<T>> {
+        None
+    }
+
+    fn outline() -> Rgb<T> {
+        Rgb([
+            T::DEFAULT_MAX_VALUE,
+            T::DEFAULT_MIN_VALUE,
+            T::DEFAULT_MIN_VALUE,
         ])
     }
 }
