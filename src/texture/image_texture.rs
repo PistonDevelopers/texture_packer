@@ -1,6 +1,6 @@
 //! Define [Texture] and [Pixel] for a generic [Image](image::GenericImage).
 use crate::texture::{Pixel, Texture};
-use image::{GenericImage, Rgb, Rgba};
+use image::{GenericImage, Primitive, Rgb, Rgba};
 
 impl<P: Pixel + image::Pixel, I: GenericImage<Pixel = P>> Texture for I {
     type Pixel = I::Pixel;
@@ -26,30 +26,39 @@ impl<P: Pixel + image::Pixel, I: GenericImage<Pixel = P>> Texture for I {
     }
 }
 
-impl Pixel for Rgba<u8> {
-    fn is_transparent(&self) -> bool {
-        self[3] == 0
-    }
-
-    fn transparency() -> Option<Rgba<u8>> {
-        Some(Rgba([0; 4]))
-    }
-
-    fn outline() -> Rgba<u8> {
-        Rgba([255, 0, 0, 255])
-    }
-}
-
-impl Pixel for Rgb<u8> {
+impl<T: Primitive> Pixel for Rgb<T> {
     fn is_transparent(&self) -> bool {
         false
     }
 
-    fn transparency() -> Option<Rgb<u8>> {
+    fn transparency() -> Option<Rgb<T>> {
         None
     }
 
-    fn outline() -> Rgb<u8> {
-        Rgb([255, 0, 0])
+    fn outline() -> Rgb<T> {
+        Rgb([
+            T::DEFAULT_MAX_VALUE,
+            T::DEFAULT_MIN_VALUE,
+            T::DEFAULT_MIN_VALUE,
+        ])
+    }
+}
+
+impl<T: Primitive> Pixel for Rgba<T> {
+    fn is_transparent(&self) -> bool {
+        self[3] == T::DEFAULT_MIN_VALUE
+    }
+
+    fn transparency() -> Option<Rgba<T>> {
+        Some(Rgba([T::DEFAULT_MIN_VALUE; 4]))
+    }
+
+    fn outline() -> Rgba<T> {
+        Rgba([
+            T::DEFAULT_MAX_VALUE,
+            T::DEFAULT_MIN_VALUE,
+            T::DEFAULT_MIN_VALUE,
+            T::DEFAULT_MAX_VALUE,
+        ])
     }
 }
