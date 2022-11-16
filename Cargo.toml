@@ -1,6 +1,6 @@
 [package]
 name = "texture_packer"
-version = "0.24.1"
+version = "0.25.0"
 authors = ["Coeuvre <coeuvre@gmail.com>"]
 edition = "2018"
 keywords = ["texture", "packer", "piston"]
