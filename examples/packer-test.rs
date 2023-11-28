@@ -22,7 +22,7 @@ fn main() {
         allow_rotation: false,
         texture_outlines: true,
         border_padding: 2,
-        force_max_dimensions: true,
+        force_max_dimensions: false,
         ..Default::default()
     };
 
