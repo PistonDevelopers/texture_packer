@@ -14,6 +14,10 @@ pub struct TexturePackerConfig {
     /// rotated 90 degrees clockwise.
     pub allow_rotation: bool,
 
+    /// If enabled, the size of the output texture will always match [max_width] and [max_height]
+    /// leaving potentially much unused space on the texture.
+    pub force_max_dimensions: bool,
+
     //
     // texture configuration
     //
@@ -39,6 +43,7 @@ impl Default for TexturePackerConfig {
             max_height: 1024,
             allow_rotation: true,
 
+            force_max_dimensions: false,
             border_padding: 0,
             texture_padding: 2,
             texture_extrusion: 0,

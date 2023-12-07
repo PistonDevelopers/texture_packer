@@ -146,6 +146,10 @@ where
     type Pixel = Pix;
 
     fn width(&self) -> u32 {
+        if self.config.force_max_dimensions {
+            return self.config.max_width
+        }
+
         let mut right = None;
 
         for (_, frame) in self.frames.iter() {
@@ -166,6 +170,10 @@ where
     }
 
     fn height(&self) -> u32 {
+        if self.config.force_max_dimensions {
+            return self.config.max_height
+        }
+
         let mut bottom = None;
 
         for (_, frame) in self.frames.iter() {
