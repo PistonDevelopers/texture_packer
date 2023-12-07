@@ -81,6 +81,7 @@ mod tests {
             texture_extrusion: 0,
             trim: false,
             texture_outlines: false,
+            force_max_dimensions: false,
         };
         let mut mtp = MultiTexturePacker::new_skyline(config);
         let texture = mrt::MemoryRGBA8Texture::from_memory(&[0, 0, 0, 0, 0, 0, 0, 0], 2, 1);
