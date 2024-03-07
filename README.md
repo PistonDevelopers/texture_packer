@@ -5,7 +5,7 @@ run the code below from the project directory. **[Documentation]**
 
 ```bash
 # Be sure you're running this code at the root of the project directory!
-cargo run --example packer-test
+cargo run --features="png" --example packer-test
 ```
 
 [How to contribute]
