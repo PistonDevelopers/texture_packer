@@ -51,7 +51,7 @@ fn main() {
         //
         // Save the result
         //
-        let exporter = ImageExporter::export(&packer).unwrap();
+        let exporter = ImageExporter::export(&packer, None).unwrap();
         let mut file = File::create("target/output/skyline-packer-output.png").unwrap();
         exporter
             .write_to(&mut file, image::ImageFormat::Png)
@@ -86,7 +86,7 @@ fn main() {
             //
             // Save the result
             //
-            let exporter = ImageExporter::export(page).unwrap();
+            let exporter = ImageExporter::export(page, None).unwrap();
             let mut file = File::create(&format!(
                 "target/output/skyline-multi-packer-output-{}.png",
                 i

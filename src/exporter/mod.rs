@@ -1,4 +1,5 @@
 //! Defines a trait for exporting [Texture]s to arbitrary data.
+use image::Rgba;
 pub use self::image_exporter::ImageExporter;
 use crate::texture::Texture;
 
@@ -13,5 +14,5 @@ pub trait Exporter<T: Texture> {
     type Output;
 
     /// Export a texture object to an `Output`.
-    fn export(texture: &T) -> ExportResult<Self::Output>;
+    fn export(texture: &T, background_color: Option<Rgba<u8>>) -> ExportResult<Self::Output>;
 }
