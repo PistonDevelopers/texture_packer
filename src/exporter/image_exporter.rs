@@ -52,10 +52,10 @@ impl<T: Texture<Pixel = Rgba<u8>>> Exporter<T> for ImageExporter<T> {
                 }
             }
             Some(bg) => {
-                let bgr = bg.color.0[0];
-                let bgg = bg.color.0[1];
-                let bgb = bg.color.0[2];
-                let bga = bg.color.0[3];
+                let bg_r = bg.color.0[0];
+                let bg_g = bg.color.0[1];
+                let bg_b = bg.color.0[2];
+                let bg_a = bg.color.0[3];
                 for row in 0..height {
                     for col in 0..width {
                         if let Some(pixel) = texture.get(col, row) {
@@ -66,10 +66,10 @@ impl<T: Texture<Pixel = Rgba<u8>>> Exporter<T> for ImageExporter<T> {
                             if let Some(rthresh) = bg.region_transparency_threshold {
                                 if region_a <= rthresh {
                                     // override region's own color with background color:
-                                    pixels.push(bgr);
-                                    pixels.push(bgg);
-                                    pixels.push(bgb);
-                                    pixels.push(bga);
+                                    pixels.push(bg_r);
+                                    pixels.push(bg_g);
+                                    pixels.push(bg_b);
+                                    pixels.push(bg_a);
                                     continue;
                                 }
 
@@ -91,10 +91,10 @@ impl<T: Texture<Pixel = Rgba<u8>>> Exporter<T> for ImageExporter<T> {
                             continue;
                         }
                         // apply background color:
-                        pixels.push(bgr);
-                        pixels.push(bgg);
-                        pixels.push(bgb);
-                        pixels.push(bga);
+                        pixels.push(bg_r);
+                        pixels.push(bg_g);
+                        pixels.push(bg_b);
+                        pixels.push(bg_a);
                     }
                 }
             }
