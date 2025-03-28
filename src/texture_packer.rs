@@ -13,6 +13,7 @@ pub type PackResult<T> = Result<T, PackError>;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PackError {
+    TextureEmpty,
     TextureTooLargeToFitIntoAtlas,
 }
 
@@ -51,7 +52,11 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
     pub fn pack_ref(&mut self, key: K, texture: &'a T) -> PackResult<()> {
         let (w, h) = (texture.width(), texture.height());
         let source = if self.config.trim {
-            trim_texture(texture)
+            if let Some(texture) = trim_texture(texture) {
+                texture
+            } else {
+                return Err(PackError::TextureEmpty);
+            }
         } else {
             Rect::new(0, 0, w, h)
         };
@@ -79,7 +84,11 @@ impl<'a, Pix: Pixel, T: Clone + Texture<Pixel = Pix>, K: Clone + Eq + Hash>
     pub fn pack_own(&mut self, key: K, texture: T) -> PackResult<()> {
         let (w, h) = (texture.width(), texture.height());
         let source = if self.config.trim {
-            trim_texture(&texture)
+            if let Some(texture) = trim_texture(&texture) {
+                texture
+            } else {
+                return Err(PackError::TextureEmpty);
+            }
         } else {
             Rect::new(0, 0, w, h)
         };
@@ -147,7 +156,7 @@ where
 
     fn width(&self) -> u32 {
         if self.config.force_max_dimensions {
-            return self.config.max_width
+            return self.config.max_width;
         }
 
         let mut right = None;
@@ -171,7 +180,7 @@ where
 
     fn height(&self) -> u32 {
         if self.config.force_max_dimensions {
-            return self.config.max_height
+            return self.config.max_height;
         }
 
         let mut bottom = None;
@@ -223,7 +232,7 @@ where
     }
 }
 
-fn trim_texture<T: Texture>(texture: &T) -> Rect {
+fn trim_texture<T: Texture>(texture: &T) -> Option<Rect> {
     let mut x1 = 0;
     for x in 0..texture.width() {
         if texture.is_column_transparent(x) {
@@ -231,6 +240,10 @@ fn trim_texture<T: Texture>(texture: &T) -> Rect {
         } else {
             break;
         }
+    }
+
+    if x1 == texture.width() {
+        return None;
     }
 
     let mut x2 = texture.width() - 1;
@@ -261,7 +274,7 @@ fn trim_texture<T: Texture>(texture: &T) -> Rect {
             break;
         }
     }
-    Rect::new_with_points(x1, y1, x2, y2)
+    Some(Rect::new_with_points(x1, y1, x2, y2))
 }
 
 #[cfg(test)]
